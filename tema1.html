@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Programación Funcional en Java</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            background-color: #f9fafb;
+        }
+        .code-block {
+            background-color: #1a202c;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            overflow-x: auto;
+        }
+        h1, h2, h3 {
+            font-weight: 700;
+            color: #1f2937;
+        }
+        .icon-section::before {
+            font-family: "Font Awesome 6 Free";
+            font-weight: 900;
+            margin-right: 0.5rem;
+        }
+        @media (max-width: 640px) {
+            .container {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+<header class="bg-blue-600 text-white py-6">
+    <div class="container mx-auto px-4">
+        <h1 class="text-3xl md:text-4xl font-bold text-center">Programación Funcional en Java</h1>
+        <p class="text-center mt-2"><a href="https://github.com/arlemorales23/funcional1.git" class="underline hover:text-blue-200" target="_blank">funcional1.git</a></p>
+    </div>
+</header>
+
+<main class="container mx-auto px-4 py-8">
+    <section class="mb-12">
+        <h2 class="text-2xl md:text-3xl font-bold mb-4 icon-section" style="content: '\f121';">Introducción</h2>
+        <p class="text-gray-700">La Programación Funcional en Java es un paradigma de programación que trata la computación como la evaluación de funciones matemáticas y evita el cambio de estado y datos mutables. Se introdujo principalmente en Java 8 y se ha ido mejorando hasta JDK 24.</p>
+    </section>
+
+    <section class="mb-12">
+        <h2 class="text-2xl md:text-3xl font-bold mb-4 icon-section" style="content: '\f0eb';">Conceptos Fundamentales</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="bg-white p-6 rounded-lg shadow-md">
+                <h3 class="text-xl font-semibold mb-2">Inmutabilidad</h3>
+                <ul class="list-disc pl-5 text-gray-700">
+                    <li>Los datos no cambian una vez creados</li>
+                    <li>Ayuda a prevenir efectos secundarios</li>
+                    <li>Facilita el razonamiento sobre el código</li>
+                </ul>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow-md">
+                <h3 class="text-xl font-semibold mb-2">Funciones de Primera Clase</h3>
+                <ul class="list-disc pl-5 text-gray-700">
+                    <li>Las funciones pueden ser asignadas a variables</li>
+                    <li>Pasadas como argumentos</li>
+                    <li>Retornadas como valores</li>
+                </ul>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow-md">
+                <h3 class="text-xl font-semibold mb-2">Expresiones Lambda</h3>
+                <ul class="list-disc pl-5 text-gray-700">
+                    <li>Son funciones anónimas</li>
+                    <li>Permiten pasar comportamiento como argumento</li>
+                    <li>Sintaxis concisa</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <section class="mb-12">
+        <h2 class="text-2xl md:text-3xl font-bold mb-4 icon-section" style="content: '\f058';">Ventajas</h2>
+        <ul class="list-disc pl-5 text-gray-700">
+            <li>Código más limpio y conciso</li>
+            <li>Mejor manejo de concurrencia</li>
+            <li>Reducción de errores por estado mutable</li>
+            <li>Facilita el testing</li>
+            <li>Mejor mantenibilidad</li>
+            <li>Mayor reutilización de código</li>
+        </ul>
+    </section>
+
+    <section class="mb-12">
+        <h2 class="text-2xl md:text-3xl font-bold mb-4 icon-section" style="content: '\f085';">Casos de Uso Comunes</h2>
+        <ul class="list-disc pl-5 text-gray-700">
+            <li>Procesamiento de colecciones de datos</li>
+            <li>Operaciones en paralelo</li>
+            <li>Manipulación de streams de datos</li>
+            <li>Event handling</li>
+            <li>Procesamiento asíncrono</li>
+            <li>Validaciones y transformaciones de datos</li>
+        </ul>
+        <p class="text-gray-700 mt-4">El Event Handling es un patrón de programación que permite responder a diferentes tipos de eventos (como clics, cambios de estado, etc.) usando funciones o handlers.</p>
+    </section>
+
+    <section class="mb-12">
+        <h2 class="text-2xl md:text-3xl font-bold mb-4 icon-section" style="content: '\f120';">Expresiones Lambda</h2>
+        <p class="text-gray-700">Una Lambda es una función anónima que puede ser tratada como un valor. Su sintaxis básica es:</p>
+        <div class="code-block">
+            <pre><code class="language-java">(parámetros) -> { cuerpo }</code></pre>
+        </div>
+        <h3 class="text-xl font-semibold mt-6 mb-2">Variantes de sintaxis</h3>
+        <div class="code-block">
+                <pre><code class="language-java">// Sin parámetros
+() -> System.out.println("Hola")
+
+// Un solo parámetro
+x -> x * 2
+
+// Múltiples parámetros
+(x, y) -> x + y
+
+// Con tipos explícitos
+(String x, String y) -> x.compareTo(y)
+</code></pre>
+        </div>
+    </section>
+
+    <section class="mb-12">
+        <h2 class="text-2xl md:text-3xl font-bold mb-4 icon-section" style="content: '\f1b3';">Dónde se usa la Programación Funcional en Java</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="bg-white p-6 rounded-lg shadow-md">
+                <h3 class="text-xl font-semibold mb-2">Frameworks y Bibliotecas</h3>
+                <ul class="list-disc pl-5 text-gray-700">
+                    <li>Spring Framework (reactive programming)</li>
+                    <li>RxJava</li>
+                    <li>Project Reactor</li>
+                    <li>Hibernate Streams</li>
+                    <li>Java EE/Jakarta EE</li>
+                </ul>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow-md">
+                <h3 class="text-xl font-semibold mb-2">Casos de Uso Empresarial</h3>
+                <ul class="list-disc pl-5 text-gray-700">
+                    <li>Procesamiento de datos masivos</li>
+                    <li>Microservicios reactivos</li>
+                    <li>Aplicaciones concurrentes</li>
+                    <li>ETL (Extract, Transform, Load)</li>
+                    <li>Procesamiento en tiempo real</li>
+                </ul>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow-md">
+                <h3 class="text-xl font-semibold mb-2">Tipos de Aplicaciones</h3>
+                <ul class="list-disc pl-5 text-gray-700">
+                    <li>Sistemas de procesamiento de eventos</li>
+                    <li>Aplicaciones web reactivas</li>
+                    <li>Análisis de datos</li>
+                    <li>Sistemas de trading</li>
+                    <li>Procesamiento de logs</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <section class="mb-12">
+        <h2 class="text-2xl md:text-3xl font-bold mb-4 icon-section" style="content: '\f1c0';">Interfaces Funcionales</h2>
+        <div class="space-y-6">
+            <div>
+                <h3 class="text-xl font-semibold mb-2">Consumer</h3>
+                <p class="text-gray-700">Consumer es una interface funcional en Java que representa una operación que toma un argumento de entrada y no devuelve ningún resultado. Su método principal es accept, que realiza una acción sobre el argumento proporcionado.</p>
+                <div class="code-block">
+                        <pre><code class="language-java">import java.util.function.Consumer;
+import java.util.Arrays;
+import java.util.List;
+
+public class ConsumerExample {
+    public static void main(String[] args) {
+        // Ejemplo 1: Imprimir un elemento
+        Consumer<String> print = System.out::println;
+        print.accept("Hello, World!"); // Imprime: Hello, World!
+
+        // Ejemplo 2: Modificar elementos en una lista
+        Consumer<List<String>> toUpperCase = list -> {
+            for (int i = 0; i < list.size(); i++) {
+                list.set(i, list.get(i).toUpperCase());
+            }
+        };
+        List<String> names = Arrays.asList("java", "python", "javascript");
+        toUpperCase.accept(names);
+        System.out.println(names); // Imprime: [JAVA, PYTHON, JAVASCRIPT]
+    }
+}
+</code></pre>
+                </div>
+            </div>
+            <div>
+                <h3 class="text-xl font-semibold mb-2">BiConsumer</h3>
+                <p class="text-gray-700">BiConsumer es una interface funcional en Java que se utiliza para representar una operación que toma dos argumentos de entrada y no devuelve ningún resultado.</p>
+                <p class="text-gray-700">La interface BiConsumer tiene un método llamado accept que toma dos parámetros de entrada y no devuelve ningún valor. Este método se utiliza para realizar una operación en los dos argumentos de entrada.</p>
+                <div class="code-block">
+                        <pre><code class="language-java">import java.util.function.BiConsumer;
+import java.util.HashMap;
+import java.util.Map;
+
+public class BiConsumerExample {
+    public static void main(String[] args) {
+        // Ejemplo 1: Concatenar y mostrar dos cadenas
+        BiConsumer<String, String> printConcat = (s1, s2) -> System.out.println(s1 + " " + s2);
+        printConcat.accept("Hello", "World"); // Imprime: Hello World
+
+        // Ejemplo 2: Agregar entrada a un mapa
+        Map<String, Integer> map = new HashMap<>();
+        BiConsumer<String, Integer> putToMap = map::put;
+        putToMap.accept("Key1", 100);
+        putToMap.accept("Key2", 200);
+        System.out.println(map); // Imprime: {Key1=100, Key2=200}
+    }
+}
+</code></pre>
+                </div>
+            </div>
+            <div>
+                <h3 class="text-xl font-semibold mb-2">Supplier</h3>
+                <p class="text-gray-700">Supplier es una interface funcional que representa una función que no toma argumentos y devuelve un valor de tipo genérico.</p>
+                <div class="code-block">
+                        <pre><code class="language-java">import java.util.function.Supplier;
+import java.time.LocalDateTime;
+
+public class SupplierExample {
+    public static void main(String[] args) {
+        // Ejemplo 1: Generar un mensaje constante
+        Supplier<String> getMessage = () -> "Hello, World!";
+        System.out.println(getMessage.get()); // Imprime: Hello, World!
+
+        // Ejemplo 2: Generar la hora actual
+        Supplier<LocalDateTime> getCurrentTime = LocalDateTime::now;
+        System.out.println(getCurrentTime.get()); // Imprime: Fecha y hora actual
+    }
+}
+</code></pre>
+                </div>
+            </div>
+            <div>
+                <h3 class="text-xl font-semibold mb-2">Function</h3>
+                <p class="text-gray-700">Function es una interface funcional que toma una entrada y devuelve una salida.</p>
+                <div class="code-block">
+                        <pre><code class="language-java">import java.util.function.Function;
+
+public class FunctionExample {
+    public static void main(String[] args) {
+        // Ejemplo 1: Calcular longitud de una cadena
+        Function<String, Integer> lengthFunction = String::length;
+        System.out.println(lengthFunction.apply("Java")); // Imprime: 4
+
+        // Ejemplo 2: Convertir cadena a mayúsculas
+        Function<String, String> toUpperCase = String::toUpperCase;
+        System.out.println(toUpperCase.apply("hello")); // Imprime: HELLO
+    }
+}
+</code></pre>
+                </div>
+            </div>
+            <div>
+                <h3 class="text-xl font-semibold mb-2">BiFunction</h3>
+                <p class="text-gray-700">BiFunction en Java funcional representa una función que toma dos argumentos de diferentes tipos y produce un resultado de otro tipo.</p>
+                <div class="code-block">
+                        <pre><code class="language-java">import java.util.function.BiFunction;
+
+public class BiFunctionExample {
+    public static void main(String[] args) {
+        // Ejemplo 1: Suma de dos números
+        BiFunction<Integer, Integer, Integer> sum = (a, b) -> a + b;
+        System.out.println(sum.apply(5, 3)); // Imprime: 8
+
+        // Ejemplo 2: Concatenar dos cadenas con un separador
+        BiFunction<String, String, String> concatWithDash = (s1, s2) -> s1 + "-" + s2;
+        System.out.println(concatWithDash.apply("Java", "Code")); // Imprime: Java-Code
+    }
+}
+</code></pre>
+                </div>
+            </div>
+            <div>
+                <h3 class="text-xl font-semibold mb-2">Predicate</h3>
+                <p class="text-gray-700">En Java, la interface funcional Predicate representa una función que acepta un argumento y devuelve un valor booleano.</p>
+                <div class="code-block">
+                        <pre><code class="language-java">import java.util.function.Predicate;
+
+public class PredicateExample {
+    public static void main(String[] args) {
+        // Ejemplo 1: Verificar si un número es par
+        Predicate<Integer> isEven = n -> n % 2 == 0;
+        System.out.println(isEven.test(4)); // Imprime: true
+        System.out.println(isEven.test(5)); // Imprime: false
+
+        // Ejemplo 2: Verificar si una cadena es larga
+        Predicate<String> isLong = s -> s.length() > 5;
+        System.out.println(isLong.test("Java")); // Imprime: false
+        System.out.println(isLong.test("JavaCode")); // Imprime: true
+    }
+}
+</code></pre>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="mb-12">
+        <h2 class="text-2xl md:text-3xl font-bold mb-4 icon-section" style="content: '\f0e7';">Programación Funcional II: Streams</h2>
+        <p class="text-gray-700 mb-4">Repositorio: <a href="https://github.com/arlemorales23/Streams.git" class="underline hover:text-blue-600" target="_blank">Streams.git</a></p>
+        <h3 class="text-xl font-semibold mb-2">Introducción a Streams</h3>
+        <p class="text-gray-700">Los Streams fueron introducidos en Java 8 y representan una secuencia de elementos que soportan operaciones agregadas secuenciales y paralelas. Son una forma moderna y funcional de procesar colecciones de datos.</p>
+        <h3 class="text-xl font-semibold mt-6 mb-2">Características principales de Streams</h3>
+        <ul class="list-disc pl-5 text-gray-700">
+            <li>No almacenan datos</li>
+            <li>No modifican la fuente de datos original</li>
+            <li>Son perezosos (lazy): las operaciones no se ejecutan hasta que sea necesario</li>
+            <li>Pueden ser infinitos</li>
+            <li>Están diseñados para operaciones funcionales</li>
+        </ul>
+    </section>
+
+    <section class="mb-12">
+        <h2 class="text-2xl md:text-3xl font-bold mb-4 icon-section" style="content: '\f120';">Creación de Streams</h2>
+        <div class="code-block">
+                <pre><code class="language-java">// 1. Desde una Collection
+List<String> lista = Arrays.asList("Java", "Python", "JavaScript");
+Stream<String> streamDeList = lista.stream();
+
+// 2. Desde un array
+String[] array = {"Java", "Python", "JavaScript"};
+Stream<String> streamDeArray = Arrays.stream(array);
+
+// 3. Stream de valores directos
+Stream<String> streamDeValores = Stream.of("Java", "Python", "JavaScript");
+
+// 4. Stream infinito
+Stream<Integer> streamInfinito = Stream.iterate(1, n -> n + 1);
+</code></pre>
+        </div>
+    </section>
+
+    <section class="mb-12">
+        <h2 class="text-2xl md:text-3xl font-bold mb-4 icon-section" style="content: '\f0b0';">Operaciones Intermedias</h2>
+        <div class="space-y-6">
+            <div>
+                <h3 class="text-xl font-semibold mb-2">Filter (filtrado)</h3>
+                <div class="code-block">
+                        <pre><code class="language-java">List<Integer> numeros = Arrays.asList(1, 2, 3, 4, 5, 6);
+List<Integer> pares = numeros.stream()
+    .filter(n -> n % 2 == 0)
+    .collect(Collectors.toList()); // [2, 4, 6]
+</code></pre>
+                </div>
+            </div>
+            <div>
+                <h3 class="text-xl font-semibold mb-2">Map (transformación)</h3>
+                <div class="code-block">
+                        <pre><code class="language-java">List<String> nombres = Arrays.asList("Juan", "Ana", "Pedro");
+List<Integer> longitudes = nombres.stream()
+    .map(String::length)
+    .collect(Collectors.toList()); // [4, 3, 5]
+</code></pre>
+                </div>
+            </div>
+            <div>
+                <h3 class="text-xl font-semibold mb-2">Sorted (ordenamiento)</h3>
+                <div class="code-block">
+                        <pre><code class="language-java">List<String> desordenados = Arrays.asList("zebra", "antílope", "león");
+List<String> ordenados = desordenados.stream()
+    .sorted()
+    .collect(Collectors.toList()); // [antílope, león, zebra]
+</code></pre>
+                </div>
+            </div>
+            <div>
+                <h3 class="text-xl font-semibold mb-2">Distinct (elementos únicos)</h3>
+                <div class="code-block">
+                        <pre><code class="language-java">List<Integer> conDuplicados = Arrays.asList(1, 1, 2, 2, 3, 3);
+List<Integer> sinDuplicados = conDuplicados.stream()
+    .distinct()
+    .collect(Collectors.toList()); // [1, 2, 3]
+</code></pre>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="mb-12">
+        <h2 class="text-2xl md:text-3xl font-bold mb-4 icon-section" style="content: '\f00c';">Operaciones Terminales</h2>
+        <div class="space-y-6">
+            <div>
+                <h3 class="text-xl font-semibold mb-2">Collect</h3>
+                <div class="code-block">
+                        <pre><code class="language-java">// Recolectar en una lista
+List<String> lista = stream.collect(Collectors.toList());
+
+// Recolectar en un set
+Set<String> conjunto = stream.collect(Collectors.toSet());
+
+// Recolectar en un mapa
+Map<Integer, String> mapa = stream
+    .collect(Collectors.toMap(
+        String::length,     // clave
+        str -> str          // valor
+    ));
+</code></pre>
+                </div>
+            </div>
+            <div>
+                <h3 class="text-xl font-semibold mb-2">Reduce</h3>
+                <div class="code-block">
+                        <pre><code class="language-java">List<Integer> numeros = Arrays.asList(1, 2, 3, 4, 5);
+
+// Suma de todos los elementos
+int suma = numeros.stream()
+    .reduce(0, Integer::sum); // 15
+
+// Encontrar el máximo
+int maximo = numeros.stream()
+    .reduce(Integer::max)
+    .orElse(0); // 5
+</code></pre>
+                </div>
+            </div>
+            <div>
+                <h3 class="text-xl font-semibold mb-2">forEach</h3>
+                <div class="code-block">
+                        <pre><code class="language-java">numeros.stream()
+    .forEach(System.out::println);
+</code></pre>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="mb-12">
+        <h2 class="text-2xl md:text-3xl font-bold mb-4 icon-section" style="content: '\f15c';">Ejemplo Práctico Completo</h2>
+        <div class="code-block">
+                <pre><code class="language-java">public class EjemploCompleto {
+    public static void main(String[] args) {
+        // Creamos una lista de productos
+        List<Producto> productos = Arrays.asList(
+            new Producto("Laptop", 1200.0, "Electrónica"),
+            new Producto("Smartphone", 800.0, "Electrónica"),
+            new Producto("Libro", 20.0, "Libros"),
+            new Producto("Tablet", 300.0, "Electrónica")
+        );
+
+        // Procesamiento con streams
+        double totalElectronica = productos.stream()
+            .filter(p -> p.getCategoria().equals("Electrónica"))
+            .mapToDouble(Producto::getPrecio)
+            .sum();
+        System.out.println("Total en electrónica: " + totalElectronica);
+
+        // Agrupar por categoría
+        Map<String, List<Producto>> porCategoria = productos.stream()
+            .collect(Collectors.groupingBy(Producto::getCategoria));
+
+        // Productos ordenados por precio
+        List<Producto> ordenadosPorPrecio = productos.stream()
+            .sorted(Comparator.comparing(Producto::getPrecio))
+            .collect(Collectors.toList());
+    }
+}
+
+class Producto {
+    private String nombre;
+    private double precio;
+    private String categoria;
+
+    // Constructor, getters y setters
+    public Producto(String nombre, double precio, String categoria) {
+        this.nombre = nombre;
+        this.precio = precio;
+        this.categoria = categoria;
+    }
+
+    public String getNombre() { return nombre; }
+    public double getPrecio() { return precio; }
+    public String getCategoria() { return categoria; }
+}
+</code></pre>
+        </div>
+    </section>
+
+    <section class="mb-12">
+        <h2 class="text-2xl md:text-3xl font-bold mb-4 icon-section" style="content: '\f085';">Streams Paralelos</h2>
+        <p class="text-gray-700">Los streams paralelos permiten procesar datos en paralelo aprovechando múltiples núcleos:</p>
+        <div class="code-block">
+                <pre><code class="language-java">List<Integer> numeros = Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
+int sumaParalela = numeros.parallelStream()
+    .reduce(0, Integer::sum);
+
+// O usar parallel() en un stream existente
+int otraSumaParalela = numeros.stream()
+    .parallel()
+    .reduce(0, Integer::sum);
+</code></pre>
+        </div>
+    </section>
+
+    <section class="mb-12">
+        <h2 class="text-2xl md:text-3xl font-bold mb-4 icon-section" style="content: '\f0c3';">Mejores Prácticas</h2>
+        <div class="space-y-6">
+            <div>
+                <h3 class="text-xl font-semibold mb-2">Use Streams cuando:</h3>
+                <ul class="list-disc pl-5 text-gray-700">
+                    <li>Necesite realizar operaciones funcionales sobre colecciones</li>
+                    <li>Quiera aprovechar el paralelismo</li>
+                </ul>
+            </div>
+            <div>
+                <h3 class="text-xl font-semibold mb-2">Evite Streams cuando:</h3>
+                <ul class="list-disc pl-5 text-gray-700">
+                    <li>Las operaciones son simples (un solo forEach)</li>
+                    <li>Necesite modificar variables externas (efectos secundarios) y el orden de ejecución sea crítico</li>
+                </ul>
+            </div>
+            <div>
+                <h3 class="text-xl font-semibold mb-2">Optimización:</h3>
+                <ul class="list-disc pl-5 text-gray-700">
+                    <li>Use streams paralelos solo con colecciones grandes</li>
+                    <li>Considere el costo de las operaciones</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+</main>
+
+<footer class="bg-gray-800 text-white py-6">
+    <div class="container mx-auto px-4 text-center">
+        <p>&copy; 2025 Programación Funcional en Java. Todos los derechos reservados.</p>
+    </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-java.min.js"></script>
+</body>
+</html>

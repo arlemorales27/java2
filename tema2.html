@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Records y Conexión a Base de Datos en Java</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            background-color: #f9fafb;
+        }
+        .code-block {
+            background-color: #1a202c;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            overflow-x: auto;
+        }
+        h1, h2, h3 {
+            font-weight: 700;
+            color: #1f2937;
+        }
+        .icon-section::before {
+            font-family: "Font Awesome 6 Free";
+            font-weight: 900;
+            margin-right: 0.5rem;
+        }
+        @media (max-width: 640px) {
+            .container {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+<header class="bg-blue-600 text-white py-6">
+    <div class="container mx-auto px-4">
+        <h1 class="text-3xl md:text-4xl font-bold text-center">Records y Conexión a Base de Datos en Java</h1>
+        <p class="text-center mt-2"><a href="https://github.com/arlemorales27/records.git" class="underline hover:text-blue-200" target="_blank">records.git</a></p>
+    </div>
+</header>
+
+<main class="container mx-auto px-4 py-8">
+    <section class="mb-12">
+        <h2 class="text-2xl md:text-3xl font-bold mb-4 icon-section" style="content: '\f15b';">Uso de Records en Java</h2>
+        <p class="text-gray-700">Los Records, introducidos en Java 14 como una característica de vista previa y estabilizados en Java 16, son una forma concisa de definir clases inmutables que actúan como contenedores de datos. En este contexto, el <code>ProductDTO</code> se define como un Record para encapsular los datos de un producto de manera inmutable.</p>
+        <div class="code-block">
+                <pre><code class="language-java">public record ProductDTO(Long id, String name, double price, int stock) {
+}
+</code></pre>
+        </div>
+        <ul class="list-disc pl-5 text-gray-700 mt-4">
+            <li>Define una clase inmutable con los campos <code>id</code>, <code>name</code>, <code>price</code>, y <code>stock</code>.</li>
+            <li>Automáticamente proporciona métodos <code>getter</code>, <code>toString</code>, <code>equals</code>, y <code>hashCode</code>.</li>
+            <li>Elimina la necesidad de escribir código repetitivo para constructores y métodos de acceso.</li>
+        </ul>
+    </section>
+    <section class="mb-12">
+        <h2 class="text-2xl md:text-3xl font-bold mb-4 icon-section" style="content: '\f15c';">Uso Práctico de Records y Métodos de Base de Datos</h2>
+        <p class="text-gray-700">Este ejemplo demuestra cómo utilizar el Record <code>ProductDTO</code> junto con los métodos de acceso a la base de datos para realizar operaciones comunes, como guardar un producto, buscarlo por ID, y listar todos los productos.</p>
+        <div class="code-block">
+                <pre><code class="language-java">import java.sql.SQLException;
+import java.util.List;
+import java.util.Optional;
+
+public class ProductServiceExample {
+    public static void main(String[] args) {
+        ProductDAO dao = new ProductDAO(); // Clase que contiene los métodos de base de datos
+
+        try {
+            // Crear y guardar un nuevo producto
+            ProductDTO newProduct = new ProductDTO(null, "Laptop", 1200.0, 10);
+            dao.save(newProduct);
+            System.out.println("Producto guardado: " + newProduct);
+
+            // Buscar el producto por ID (suponiendo que el ID se genera automáticamente)
+            Optional<ProductDTO> foundProduct = dao.findById(1L);
+            if (foundProduct.isPresent()) {
+                System.out.println("Producto encontrado: " + foundProduct.get());
+            } else {
+                System.out.println("Producto no encontrado.");
+            }
+
+            // Listar todos los productos
+            List<ProductDTO> allProducts = dao.findAll();
+            System.out.println("Lista de productos:");
+            allProducts.forEach(System.out::println);
+
+        } catch (SQLException e) {
+            System.err.println("Error en la operación de base de datos: " + e.getMessage());
+        }
+    }
+}
+
+public record ProductDTO(Long id, String name, double price, int stock) {
+}
+
+class ProductDAO {
+    public List<ProductDTO> findAll() throws SQLException {
+        List<ProductDTO> products = new ArrayList<>();
+        String sql = "SELECT * FROM products";
+
+        try (Connection conn = DatabaseConfig.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+            while (rs.next()) {
+                ProductDTO product = new ProductDTO(
+                    rs.getLong("id"),
+                    rs.getString("name"),
+                    rs.getDouble("price"),
+                    rs.getInt("stock")
+                );
+                products.add(product);
+            }
+        }
+        return products;
+    }
+
+    public void save(ProductDTO product) throws SQLException {
+        String sql = "INSERT INTO products (name, price, stock) VALUES (?, ?, ?)";
+
+        try (Connection conn = DatabaseConfig.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, product.name());
+            stmt.setDouble(2, product.price());
+            stmt.setInt(3, product.stock());
+            stmt.executeUpdate();
+        }
+    }
+
+    public Optional<ProductDTO> findById(Long id) throws SQLException {
+        String sql = "SELECT * FROM products WHERE id = ?";
+
+        try (Connection conn = DatabaseConfig.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setLong(1, id);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                return Optional.of(new ProductDTO(
+                    rs.getLong("id"),
+                    rs.getString("name"),
+                    rs.getDouble("price"),
+                    rs.getInt("stock")
+                ));
+            }
+        }
+        return Optional.empty();
+    }
+}
+</code></pre>
+        </div>
+        <ul class="list-disc pl-5 text-gray-700 mt-4">
+            <li>Define una clase <code>ProductServiceExample</code> que demuestra el uso de los métodos de base de datos.</li>
+            <li>Crea un nuevo <code>ProductDTO</code> como un Record y lo guarda en la base de datos usando el método <code>save</code>.</li>
+            <li>Busca un producto por ID utilizando <code>findById</code>, manejando el resultado con <code>Optional</code> para verificar si existe.</li>
+            <li>Recupera y muestra todos los productos usando <code>findAll</code>.</li>
+            <li>Maneja excepciones SQL para garantizar robustez.</li>
+            <li>Utiliza el Record <code>ProductDTO</code> para encapsular datos de manera inmutable, aprovechando su sintaxis concisa.</li>
+        </ul>
+    </section>
+
+    <section class="mb-12">
+        <h2 class="text-2xl md:text-3xl font-bold mb-4 icon-section" style="content: '\f1c0';">Método findAll</h2>
+        <p class="text-gray-700">Este método retorna una lista de productos obtenidos de la base de datos y maneja excepciones SQL.</p>
+        <div class="code-block">
+                <pre><code class="language-java">public List<ProductDTO> findAll() throws SQLException {
+    List<ProductDTO> products = new ArrayList<>();
+    String sql = "SELECT * FROM products";
+
+    try (Connection conn = DatabaseConfig.getConnection();
+         PreparedStatement stmt = conn.prepareStatement(sql);
+         ResultSet rs = stmt.executeQuery()) {
+        while (rs.next()) {
+            ProductDTO product = new ProductDTO(
+                rs.getLong("id"),
+                rs.getString("name"),
+                rs.getDouble("price"),
+                rs.getInt("stock")
+            );
+            products.add(product);
+        }
+    }
+    return products;
+}
+</code></pre>
+        </div>
+        <ul class="list-disc pl-5 text-gray-700 mt-4">
+            <li>Inicializa una lista vacía para almacenar productos.</li>
+            <li>Define una consulta SQL para obtener todos los productos.</li>
+            <li>Obtiene una conexión de la configuración de base de datos.</li>
+            <li>Prepara la consulta SQL previniendo inyección SQL.</li>
+            <li>Ejecuta la consulta y obtiene resultados.</li>
+            <li>Itera sobre cada fila del resultado.</li>
+            <li>Crea un objeto <code>ProductDTO</code> con datos de cada columna.</li>
+            <li>Agrega el producto a la lista.</li>
+            <li>Try-with-resources cierra automáticamente conexión, statement y resultset.</li>
+        </ul>
+    </section>
+
+    <section class="mb-12">
+        <h2 class="text-2xl md:text-3xl font-bold mb-4 icon-section" style="content: '\f0c7';">Método save</h2>
+        <p class="text-gray-700">Este método inserta un producto en la base de datos utilizando parámetros de sustitución seguros.</p>
+        <div class="code-block">
+                <pre><code class="language-java">public void save(ProductDTO product) throws SQLException {
+    String sql = "INSERT INTO products (name, price, stock) VALUES (?, ?, ?)";
+
+    try (Connection conn = DatabaseConfig.getConnection();
+         PreparedStatement stmt = conn.prepareStatement(sql)) {
+        stmt.setString(1, product.name());
+        stmt.setDouble(2, product.price());
+        stmt.setInt(3, product.stock());
+        stmt.executeUpdate();
+    }
+}
+</code></pre>
+        </div>
+        <ul class="list-disc pl-5 text-gray-700 mt-4">
+            <li>Define una consulta SQL para insertar un producto, usando <code>?</code> como parámetros de sustitución seguros.</li>
+            <li>Obtiene una conexión y prepara el statement con parámetros.</li>
+            <li>Asigna valores a los parámetros de sustitución en orden: <code>name</code> en posición 1, <code>price</code> en posición 2, <code>stock</code> en posición 3.</li>
+            <li>Ejecuta la inserción.</li>
+            <li>Try-with-resources cierra conexiones automáticamente.</li>
+        </ul>
+    </section>
+
+    <section class="mb-12">
+        <h2 class="text-2xl md:text-3xl font-bold mb-4 icon-section" style="content: '\f002';">Método findById</h2>
+        <p class="text-gray-700">Este método busca un producto por su ID y utiliza <code>Optional</code> para manejar casos donde el producto puede no existir.</p>
+        <div class="code-block">
+                <pre><code class="language-java">public Optional<ProductDTO> findById(Long id) throws SQLException {
+    String sql = "SELECT * FROM products WHERE id = ?";
+
+    try (Connection conn = DatabaseConfig.getConnection();
+         PreparedStatement stmt = conn.prepareStatement(sql)) {
+        stmt.setLong(1, id);
+        ResultSet rs = stmt.executeQuery();
+
+        if (rs.next()) {
+            return Optional.of(new ProductDTO(
+                rs.getLong("id"),
+                rs.getString("name"),
+                rs.getDouble("price"),
+                rs.getInt("stock")
+            ));
+        }
+    }
+    return Optional.empty();
+}
+</code></pre>
+        </div>
+        <ul class="list-disc pl-5 text-gray-700 mt-4">
+            <li>Define una consulta SQL para buscar un producto por ID usando parámetros de sustitución.</li>
+            <li><code>Optional</code> es una clase que encapsula un valor que puede ser null o no null, permitiendo manejar casos donde un valor puede no existir.</li>
+            <li>Asigna el ID al parámetro de sustitución.</li>
+            <li>Ejecuta la consulta.</li>
+            <li>Si encuentra un registro, retorna un <code>Optional</code> con el producto.</li>
+            <li>Si no encuentra un registro, retorna un <code>Optional</code> vacío.</li>
+        </ul>
+        <p class="text-gray-700 mt-4">En el código mostrado, <code>Optional&lt;ProductDTO&gt;</code> indica que el método puede retornar:</p>
+        <ul class="list-disc pl-5 text-gray-700">
+            <li>Un producto si existe (<code>Optional.of()</code>).</li>
+            <li>Ningún producto si no se encuentra (<code>Optional.empty()</code>).</li>
+        </ul>
+    </section>
+
+
+
+    <section class="mb-12">
+        <h2 class="text-2xl md:text-3xl font-bold mb-4 icon-section" style="content: '\f085';">Pool de Conexiones</h2>
+        <p class="text-gray-700">Un pool de conexiones en Java es un mecanismo que gestiona un conjunto de conexiones reutilizables a la base de datos.</p>
+        <h3 class="text-xl font-semibold mb-2">Características principales</h3>
+        <ul class="list-disc pl-5 text-gray-700">
+            <li>Mantiene un conjunto de conexiones preestablecidas.</li>
+            <li>Evita crear/cerrar conexiones repetidamente.</li>
+            <li>Gestiona conexiones concurrentes eficientemente.</li>
+            <li>Limita el número máximo de conexiones.</li>
+        </ul>
+        <h3 class="text-xl font-semibold mt-6 mb-2">Beneficios</h3>
+        <ul class="list-disc pl-5 text-gray-700">
+            <li>Mejor rendimiento al reutilizar conexiones.</li>
+            <li>Menos sobrecarga de recursos.</li>
+            <li>Control de conexiones simultáneas.</li>
+            <li>Configuración de timeouts y reconexiones.</li>
+        </ul>
+        <h3 class="text-xl font-semibold mt-6 mb-2">Ejemplo de Uso</h3>
+        <p class="text-gray-700">La sintaxis típica para obtener una conexión desde un pool de conexiones reemplaza:</p>
+        <div class="code-block">
+                <pre><code class="language-java">Connection conn = DriverManager.getConnection(url, user, pass);
+</code></pre>
+        </div>
+        <p class="text-gray-700">Por:</p>
+        <div class="code-block">
+                <pre><code class="language-java">Connection conn = dataSource.getConnection(); // Obtiene del pool
+</code></pre>
+        </div>
+    </section>
+</main>
+
+<footer class="bg-gray-800 text-white py-6">
+    <div class="container mx-auto px-4 text-center">
+        <p>&copy; 2025 Records y Conexión a Base de Datos en Java. Todos los derechos reservados.</p>
+    </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-java.min.js"></script>
+</body>
+</html>
