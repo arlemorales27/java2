@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tutorial de Programación Reactiva con Spring Boot</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-java.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-yaml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-sql.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-xml-doc.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .code-container {
+            position: relative;
+            margin-bottom: 1.5rem;
+        }
+        .copy-button {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            background: #3182ce;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0.25rem;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .copy-button:hover {
+            background: #2b6cb0;
+        }
+        .animate-icon {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+        .pom-code code {
+            color: #4CAF50 !important; /* Green color for pom.xml code */
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+<!-- Header -->
+<header class="bg-blue-600 text-white py-6">
+    <div class="container mx-auto px-4">
+        <h1 class="text-3xl md:text-4xl font-bold"><i class="fa-solid fa-code animate-icon mr-2"></i> Tutorial de Programación Reactiva con Spring Boot</h1>
+        <p class="mt-2 text-lg">Aprende a construir APIs reactivas modernas con Spring WebFlux y MySQL</p>
+        <a href="https://github.com/arlemorales27/apireactiva.git" class="text-blue-200 hover:underline">Repositorio en GitHub</a>
+    </div>
+</header>
+
+<!-- Main Content -->
+<main class="container mx-auto px-4 py-8">
+    <!-- ¿Qué es la programación reactiva? -->
+    <section class="bg-white rounded-lg shadow-md p-6 mb-8">
+        <h2 class="text-2xl font-semibold mb-4"><i class="fa-solid fa-question-circle animate-icon mr-2"></i> ¿Qué es la programación reactiva?</h2>
+        <p class="text-gray-700 mb-4">
+            La programación reactiva es una forma de programar que se enfoca en reaccionar a los datos cuando llegan, en vez de esperar a que todo esté listo antes de empezar.
+        </p>
+        <h3 class="text-xl font-semibold mb-2"><i class="fa-solid fa-running animate-icon mr-2"></i> Comparación sencilla</h3>
+        <p class="text-gray-700 mb-4">
+            <strong>Programación tradicional:</strong><br>
+            👉 Imagina que estás cocinando y no haces nada más hasta que la comida esté lista.<br>
+            Así funciona la programación tradicional: espera que una tarea termine para pasar a la siguiente.
+        </p>
+        <p class="text-gray-700 mb-4">
+            <strong>Programación reactiva:</strong><br>
+            👉 En cambio, con programación reactiva, puedes hacer otras cosas mientras la comida se cocina.<br>
+            Cuando esté lista, te avisa (reacciona), y tú actúas.
+        </p>
+        <h3 class="text-xl font-semibold mb-2">¿Para qué sirve?</h3>
+        <ul class="list-disc list-inside text-gray-700 mb-4">
+            <li><i class="fa-solid fa-server mr-2"></i> Para manejar muchas peticiones al mismo tiempo sin bloquear el sistema</li>
+            <li><i class="fa-solid fa-rocket mr-2"></i> Para aplicaciones web más rápidas y escalables</li>
+            <li><i class="fa-solid fa-database mr-2"></i> Muy útil cuando trabajas con APIs, bases de datos, streaming, sensores, etc.</li>
+        </ul>
+        <h3 class="text-xl font-semibold mb-2">Palabras clave que vas a ver</h3>
+        <ul class="list-disc list-inside text-gray-700 mb-4">
+            <li><strong>Mono&lt;T&gt;</strong>: representa una sola respuesta (como una promesa)</li>
+            <li><strong>Flux&lt;T&gt;</strong>: representa muchas respuestas (una secuencia de datos)</li>
+            <li><strong>subscribe()</strong>: te suscribes a los datos cuando estén listos</li>
+            <li><strong>non-blocking</strong>: significa que no bloquea el programa mientras espera</li>
+        </ul>
+        <img src="https://images.unsplash.com/photo-1516321310768-61c58e64ad7b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80" alt="Programación reactiva" class="rounded-lg mb-4 w-full max-w-2xl mx-auto">
+    </section>
+
+    <!-- ¿Qué es el pom.xml? -->
+    <section class="bg-white rounded-lg shadow-md p-6 mb-8">
+        <h2 class="text-2xl font-semibold mb-4"><i class="fa-solid fa-file-code animate-icon mr-2"></i> ¿Qué es el pom.xml?</h2>
+        <p class="text-gray-700 mb-4">
+            El archivo <code>pom.xml</code> es como el "manual de instrucciones" de tu proyecto Java. La palabra POM significa <strong>Project Object Model</strong>.
+        </p>
+        <p class="text-gray-700 mb-4">
+            📦 Es un archivo en formato XML que define todo lo necesario para construir tu proyecto, como:
+        </p>
+        <ul class="list-disc list-inside text-gray-700 mb-4">
+            <li><i class="fa-solid fa-box mr-2"></i> Dependencias (librerías que necesitas)</li>
+            <li><i class="fa-solid fa-java mr-2"></i> Versión de Java</li>
+            <li><i class="fa-solid fa-tag mr-2"></i> Nombre del proyecto</li>
+            <li><i class="fa-solid fa-plug mr-2"></i> Plugins para compilar, testear o empaquetar</li>
+            <li><i class="fa-solid fa-cog mr-2"></i> Configuración de versiones de Spring, R2DBC, etc.</li>
+        </ul>
+        <h3 class="text-xl font-semibold mb-2"><i class="fa-solid fa-bullseye animate-icon mr-2"></i> ¿Para qué sirve?</h3>
+        <ol class="list-decimal list-inside text-gray-700 mb-4">
+            <li><strong>📚 Agregar dependencias</strong><br>
+                ¿Necesitas usar Web, JPA, WebFlux, MySQL o cualquier librería? Solo lo defines así:
+                <div class="code-container">
+                    <button class="copy-button" onclick="copyCode(this)">Copiar</button>
+                    <pre><code class="language-xml">
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-web</artifactId>
+</dependency>
+                        </code></pre>
+                </div>
+                Maven descarga automáticamente las versiones correctas desde internet.
+            </li>
+            <li><strong>🛠 Controlar cómo se construye tu aplicación</strong><br>
+                Define cosas como:<br>
+                · Qué plugins usar para compilar (maven-compiler-plugin)<br>
+                · Qué versión de Java usar (&lt;java.version&gt;)<br>
+                · Cómo generar un .jar o .war
+            </li>
+            <li><strong>📦 Empaquetar la app en un solo archivo ejecutable</strong><br>
+                Con Maven puedes correr un comando:
+                <div class="code-container">
+                    <button class="copy-button" onclick="copyCode(this)">Copiar</button>
+                    <pre><code class="language-bash">
+mvn clean install
+                        </code></pre>
+                </div>
+                Y Maven crea un archivo .jar con todo lo necesario para ejecutar tu app.
+            </li>
+        </ol>
+        <h3 class="text-xl font-semibold mb-2">🧪 ¿Y si usas Spring Boot?</h3>
+        <p class="text-gray-700 mb-4">
+            Spring Boot se basa en Maven y el <code>pom.xml</code> para saber:<br>
+            · Qué versiones usar de sus módulos<br>
+            · Cómo integrar WebFlux, JPA, Seguridad, etc.<br>
+            · Cómo compilar correctamente según tu JDK
+        </p>
+    </section>
+
+    <!-- application.properties vs application.yml -->
+    <section class="bg-white rounded-lg shadow-md p-6 mb-8">
+        <h2 class="text-2xl font-semibold mb-4"><i class="fa-solid fa-cogs animate-icon mr-2"></i> application.properties vs application.yml</h2>
+        <h3 class="text-xl font-semibold mb-2">📘 application.properties</h3>
+        <p class="text-gray-700 mb-4">
+            · Formato de texto plano<br>
+            · Cada propiedad va en una línea<br>
+            · Ejemplo:
+        </p>
+        <div class="code-container">
+            <button class="copy-button" onclick="copyCode(this)">Copiar</button>
+            <pre><code class="language-properties">
+server.port=8080
+spring.datasource.url=jdbc:mysql://localhost:3306/db
+                </code></pre>
+        </div>
+        <h3 class="text-xl font-semibold mb-2">📘 application.yml</h3>
+        <p class="text-gray-700 mb-4">
+            · Formato YAML (estructurado)<br>
+            · Permite anidación clara y ordenada<br>
+            · Ejemplo:
+        </p>
+        <div class="code-container">
+            <button class="copy-button" onclick="copyCode(this)">Copiar</button>
+            <pre><code class="language-yaml">
+server:
+  port: 8080
+
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/db
+                </code></pre>
+        </div>
+        <h3 class="text-xl font-semibold mb-2">🤔 ¿Cuál es mejor?</h3>
+        <table class="w-full text-left text-gray-700 mb-4 border-collapse">
+            <thead>
+            <tr class="bg-gray-200">
+                <th class="p-2">Característica</th>
+                <th class="p-2">.properties</th>
+                <th class="p-2">.yml</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td class="p-2">Más legible</td>
+                <td class="p-2">❌ Menos</td>
+                <td class="p-2">✅ Más clara y organizada</td>
+            </tr>
+            <tr>
+                <td class="p-2">Soporta estructuras</td>
+                <td class="p-2">❌ No</td>
+                <td class="p-2">✅ Sí (anidaciones)</td>
+            </tr>
+            <tr>
+                <td class="p-2">Más común en Spring</td>
+                <td class="p-2">✅ Sí</td>
+                <td class="p-2">✅ Sí</td>
+            </tr>
+            <tr>
+                <td class="p-2">Menos propenso a error</td>
+                <td class="p-2">✅ Sí</td>
+                <td class="p-2">❌ YAML es sensible a espacios</td>
+            </tr>
+            </tbody>
+        </table>
+    </section>
+
+    <!-- Creación del proyecto -->
+    <section class="bg-white rounded-lg shadow-md p-6 mb-8">
+        <h2 class="text-2xl font-semibold mb-4"><i class="fa-solid fa-laptop-code animate-icon mr-2"></i> Creación del proyecto en IntelliJ IDEA Ultimate</h2>
+        <h3 class="text-xl font-semibold mb-2">a. Configuración desde Spring Initializr</h3>
+        <ol class="list-decimal list-inside text-gray-700 mb-4">
+            <li>Abre IntelliJ IDEA Ultimate</li>
+            <li>Ve a: <code>File > New > Project... > Spring Initializr</code></li>
+            <li>Configura:<br>
+                · Project: Maven<br>
+                · Language: Java<br>
+                · Java: 23<br>
+                · Packaging: Jar<br>
+                · Dependencies:<br>
+                &nbsp;&nbsp;&nbsp;- Spring Reactive Web<br>
+                &nbsp;&nbsp;&nbsp;- R2DBC MySQL Driver<br>
+                &nbsp;&nbsp;&nbsp;- Spring Data R2DBC<br>
+                &nbsp;&nbsp;&nbsp;- Lombok (opcional) no necesario<br>
+                &nbsp;&nbsp;&nbsp;- Validation
+            </li>
+            <li>Nombre del proyecto: <code>demo-reactive-api</code></li>
+            <li>Pulsa <code>Finish</code></li>
+        </ol>
+        <h3 class="text-xl font-semibold mb-2">🗂 2. Estructura de carpetas recomendada</h3>
+        <div class="code-container">
+            <button class="copy-button" onclick="copyCode(this)">Copiar</button>
+            <pre><code class="language-text">
+demo-reactive-api/
+├── src/main/java/com/example/demo
+│   ├── controller/
+│   ├── model/
+│   ├── repository/
+│   ├── service/
+│   └── DemoReactiveApiApplication.java
+├── src/main/resources/
+│   ├── application.yml
+├── pom.xml
+                </code></pre>
+        </div>
+        <h3 class="text-xl font-semibold mb-2">🛢 3. Script de base de datos MySQL (R2DBC-compatible)</h3>
+        <p class="text-gray-700 mb-4">
+            Tabla: <code>person</code>
+        </p>
+        <div class="code-container">
+            <button class="copy-button" onclick="copyCode(this)">Copiar</button>
+            <pre><code class="language-sql">
+CREATE DATABASE demo_reactive;
+
+USE demo_reactive;
+
+CREATE TABLE person (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(100) NOT NULL,
+    email VARCHAR(100) NOT NULL
+);
+                </code></pre>
+        </div>
+    </section>
+
+    <!-- Código completo -->
+    <section class="bg-white rounded-lg shadow-md p-6 mb-8">
+        <h2 class="text-2xl font-semibold mb-4"><i class="fa-solid fa-file-code animate-icon mr-2"></i> Código completo</h2>
+        <h3 class="text-xl font-semibold mb-2">📦 application.yml</h3>
+        <div class="code-container">
+            <button class="copy-button" onclick="copyCode(this)">Copiar</button>
+            <pre><code class="language-yaml">
+spring:
+  r2dbc:
+    url: r2dbc:mysql://localhost:3306/demo_reactive
+    username: root
+    password:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+logging:
+  level:
+    org.springframework.r2dbc: DEBUG
+                </code></pre>
+        </div>
+        <h3 class="text-xl font-semibold mb-2">📄 model/Person.java (record)</h3>
+        <div class="code-container">
+            <button class="copy-button" onclick="copyCode(this)">Copiar</button>
+            <pre><code class="language-java">
+package com.arle.demoreactiveapi.model;
+
+import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Table;
+
+@Table("person")
+public record Person(
+        @Id Long id,
+        String name,
+        String email
+) {}
+                </code></pre>
+        </div>
+        <h3 class="text-xl font-semibold mb-2">📄 repository/PersonRepository.java</h3>
+        <div class="code-container">
+            <button class="copy-button" onclick="copyCode(this)">Copiar</button>
+            <pre><code class="language-java">
+package com.arle.demoreactiveapi.repository;
+
+import com.arle.demoreactiveapi.model.Person;
+import org.springframework.data.repository.reactive.ReactiveCrudRepository;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public interface PersonRepository extends ReactiveCrudRepository<Person, Long> {
+}
+                </code></pre>
+        </div>
+        <h3 class="text-xl font-semibold mb-2">📄 service/PersonService.java</h3>
+        <div class="code-container">
+            <button class="copy-button" onclick="copyCode(this)">Copiar</button>
+            <pre><code class="language-java">
+package com.arle.demoreactiveapi.service;
+
+import com.arle.demoreactiveapi.model.Person;
+import com.arle.demoreactiveapi.repository.PersonRepository;
+import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+
+@Service
+public class PersonService {
+
+    private final PersonRepository repository;
+
+    public PersonService(PersonRepository repository) {
+        this.repository = repository;
+    }
+
+    public Mono<Person> create(Person person) {
+        return repository.save(person);
+    }
+
+    public Flux<Person> getAll() {
+        return repository.findAll();
+    }
+
+    public Mono<Person> getById(Long id) {
+        return repository.findById(id);
+    }
+
+    public Mono<Person> update(Long id, Person newData) {
+        return repository.findById(id)
+                .flatMap(existing -> repository.save(new Person(id, newData.name(), newData.email())));
+    }
+
+    public Mono<Void> delete(Long id) {
+        return repository.deleteById(id);
+    }
+}
+                </code></pre>
+        </div>
+        <h3 class="text-xl font-semibold mb-2">📄 controller/PersonController.java</h3>
+        <div class="code-container">
+            <button class="copy-button" onclick="copyCode(this)">Copiar</button>
+            <pre><code class="language-java">
+package com.arle.demoreactiveapi.controller;
+
+import com.arle.demoreactiveapi.model.Person;
+import com.arle.demoreactiveapi.service.PersonService;
+import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+
+@RestController
+@RequestMapping("/api/persons")
+public class PersonController {
+
+    private final PersonService service;
+
+    public PersonController(PersonService service) {
+        this.service = service;
+    }
+
+    @PostMapping
+    public Mono<Person> create(@RequestBody Person person) {
+        return service.create(person);
+    }
+
+    @GetMapping
+    public Flux<Person> getAll() {
+        return service.getAll();
+    }
+
+    @GetMapping("/{id}")
+    public Mono<Person> getById(@PathVariable Long id) {
+        return service.getById(id);
+    }
+
+    @PutMapping("/{id}")
+    public Mono<Person> update(@PathVariable Long id, @RequestBody Person person) {
+        return service.update(id, person);
+    }
+
+    @DeleteMapping("/{id}")
+    public Mono<Void> delete(@PathVariable Long id) {
+        return service.delete(id);
+    }
+}
+                </code></pre>
+        </div>
+        <h3 class="text-xl font-semibold mb-2">📄 DemoReactiveApiApplication.java</h3>
+        <div class="code-container">
+            <button class="copy-button" onclick="copyCode(this)">Copiar</button>
+            <pre><code class="language-java">
+package com.arle.demoreactiveapi;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class DemoReactiveApiApplication {
+
+    public static void main(String[] args) {
+        SpringApplication.run(DemoReactiveApiApplication.class, args);
+    }
+}
+                </code></pre>
+        </div>
+        <h3 class="text-xl font-semibold mb-2">🧪 5. Pom.xml completo</h3>
+        <div class="code-container pom-code">
+            <p>Ver el repositorio</p>
+        </div>
+    </section>
+
+    <!-- Pruebas en Postman -->
+    <section class="bg-white rounded-lg shadow-md p-6 mb-8">
+        <h2 class="text-2xl font-semibold mb-4"><i class="fa-solid fa-vial animate-icon mr-2"></i> Pruebas en Postman</h2>
+        <p class="text-gray-700 mb-4">
+            Base URL: <code>http://localhost:8080/api/persons</code>
+        </p>
+        <h3 class="text-xl font-semibold mb-2">🔹 Crear (POST)</h3>
+        <p class="text-gray-700 mb-4">
+            · URL: <code>/api/persons</code><br>
+            · Body (JSON):
+        </p>
+        <div class="code-container">
+            <button class="copy-button" onclick="copyCode(this)">Copiar</button>
+            <pre><code class="language-json">
+{
+  "name": "Juan Pérez",
+  "email": "juan@example.com"
+}
+                </code></pre>
+        </div>
+        <h3 class="text-xl font-semibold mb-2">🔹 Obtener todos (GET)</h3>
+        <p class="text-gray-700 mb-4">
+            · URL: <code>/api/persons</code><br>
+            · Método: GET
+        </p>
+        <h3 class="text-xl font-semibold mb-2">🔹 Obtener por ID (GET)</h3>
+        <p class="text-gray-700 mb-4">
+            · URL: <code>/api/persons/1</code><br>
+            · Método: GET
+        </p>
+        <h3 class="text-xl font-semibold mb-2">🔹 Actualizar (PUT)</h3>
+        <p class="text-gray-700 mb-4">
+            · URL: <code>/api/persons/1</code><br>
+            · Método: PUT<br>
+            · Body (JSON):
+        </p>
+        <div class="code-container">
+            <button class="copy-button" onclick="copyCode(this)">Copiar</button>
+            <pre><code class="language-json">
+{
+  "name": "Juan Actualizado",
+  "email": "juan.new@example.com"
+}
+                </code></pre>
+        </div>
+        <h3 class="text-xl font-semibold mb-2">🔹 Eliminar (DELETE)</h3>
+        <p class="text-gray-700 mb-4">
+            · URL: <code>/api/persons/1</code><br>
+            · Método: DELETE
+        </p>
+    </section>
+
+    <!-- Tarea -->
+    <section class="bg-white rounded-lg shadow-md p-6 mb-8">
+        <h2 class="text-2xl font-semibold mb-4"><i class="fa-solid fa-tasks animate-icon mr-2"></i> Tarea: Crear 2 APIs REST con Spring Boot y Programación Reactiva</h2>
+        <p class="text-gray-700 mb-4">
+            Crea dos APIs REST reactivas usando Spring Boot, Spring WebFlux, Spring Data R2DBC, y PostgreSQL como base de datos. A continuación, se describen las especificaciones para cada API:
+        </p>
+        <h3 class="text-xl font-semibold mb-2">1. API de Libros</h3>
+        <p class="text-gray-700 mb-4">
+            Crea una API para gestionar libros con las siguientes características:
+        </p>
+        <ul class="list-disc list-inside text-gray-700 mb-4">
+            <li><strong>Entidad:</strong> Book (id, title, author, publicationYear)</li>
+            <li><strong>Operaciones CRUD:</strong>
+                <ul class="list-disc list-inside ml-4">
+                    <li>POST /api/books: Crear un libro</li>
+                    <li>GET /api/books: Obtener todos los libros</li>
+                    <li>GET /api/books/{id}: Obtener un libro por ID</li>
+                    <li>PUT /api/books/{id}: Actualizar un libro</li>
+                    <li>DELETE /api/books/{id}: Eliminar un libro</li>
+                </ul>
+            </li>
+            <li><strong>Base de datos:</strong> PostgreSQL</li>
+            <li><strong>Estructura:</strong> Similar a la del ejemplo proporcionado (model, repository, service, controller)</li>
+        </ul>
+        <h4 class="text-lg font-semibold mb-2">Script de base de datos (PostgreSQL)</h4>
+        <div class="code-container">
+            <button class="copy-button" onclick="copyCode(this)">Copiar</button>
+            <pre><code class="language-sql">
+CREATE DATABASE books_db;
+
+\c books_db;
+
+CREATE TABLE book (
+    id BIGSERIAL PRIMARY KEY,
+    title VARCHAR(100) NOT NULL,
+    author VARCHAR(100) NOT NULL,
+    publication_year INTEGER NOT NULL
+);
+                </code></pre>
+        </div>
+        <h4 class="text-lg font-semibold mb-2">Dependencias en pom.xml</h4>
+        <p class="text-gray-700 mb-4">
+            Asegúrate de incluir las siguientes dependencias en el <code>pom.xml</code>:
+        </p>
+        <div class="code-container">
+            <button class="copy-button" onclick="copyCode(this)">Copiar</button>
+            <pre><code class="language-xml">
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-webflux</artifactId>
+</dependency>
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-data-r2dbc</artifactId>
+</dependency>
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-validation</artifactId>
+</dependency>
+<dependency>
+    <groupId>io.r2dbc</groupId>
+    <artifactId>r2dbc-postgresql</artifactId>
+</dependency>
+<dependency>
+    <groupId>org.postgresql</groupId>
+    <artifactId>postgresql</artifactId>
+    <scope>runtime</scope>
+</dependency>
+                </code></pre>
+        </div>
+        <h4 class="text-lg font-semibold mb-2">Configuración en application.yml</h4>
+        <div class="code-container">
+            <button class="copy-button" onclick="copyCode(this)">Copiar</button>
+            <pre><code class="language-yaml">
+spring:
+  r2dbc:
+    url: r2dbc:postgresql://localhost:5432/books_db
+    username: postgres
+    password: your_password
+                </code></pre>
+        </div>
+        <h3 class="text-xl font-semibold mb-2">2. API de Tareas</h3>
+        <p class="text-gray-700 mb-4">
+            Crea una API para gestionar tareas con las siguientes características:
+        </p>
+        <ul class="list-disc list-inside text-gray-700 mb-4">
+            <li><strong>Entidad:</strong> Task (id, title, description, completed)</li>
+            <li><strong>Operaciones CRUD:</strong>
+                <ul class="list-disc list-inside ml-4">
+                    <li>POST /api/tasks: Crear una tarea</li>
+                    <li>GET /api/tasks: Obtener todas las tareas</li>
+                    <li>GET /api/tasks/{id}: Obtener una tarea por ID</li>
+                    <li>PUT /api/tasks/{id}: Actualizar una tarea</li>
+                    <li>DELETE /api/tasks/{id}: Eliminar una tarea</li>
+                </ul>
+            </li>
+            <li><strong>Base de datos:</strong> PostgreSQL</li>
+            <li><strong>Estructura:</strong> Similar a la del ejemplo proporcionado (model, repository, service, controller)</li>
+        </ul>
+        <h4 class="text-lg font-semibold mb-2">Script de base de datos (PostgreSQL)</h4>
+        <div class="code-container">
+            <button class="copy-button" onclick="copyCode(this)">Copiar</button>
+            <pre><code class="language-sql">
+CREATE DATABASE tasks_db;
+
+\c tasks_db;
+
+CREATE TABLE task (
+    id BIGSERIAL PRIMARY KEY,
+    title VARCHAR(100) NOT NULL,
+    description TEXT,
+    completed BOOLEAN NOT NULL DEFAULT FALSE
+);
+                </code></pre>
+        </div>
+        <h4 class="text-lg font-semibold mb-2">Dependencias en pom.xml</h4>
+        <p class="text-gray-700 mb-4">
+            Usa las mismas dependencias que en la API de Libros.
+        </p>
+        <h4 class="text-lg font-semibold mb-2">Configuración en application.yml</h4>
+        <div class="code-container">
+            <button class="copy-button" onclick="copyCode(this)">Copiar</button>
+            <pre><code class="language-yaml">
+spring:
+  r2dbc:
+    url: r2dbc:postgresql://localhost:5432/tasks_db
+    username: postgres
+    password: your_password
+                </code></pre>
+        </div>
+        <h3 class="text-xl font-semibold mb-2">Instrucciones</h3>
+        <ul class="list-disc list-inside text-gray-700 mb-4">
+            <li>Usa Spring Initializr para crear los proyectos.</li>
+            <li>Implementa la estructura de carpetas como en el ejemplo proporcionado.</li>
+            <li>Configura PostgreSQL y crea las bases de datos con los scripts proporcionados.</li>
+            <li>Implementa las clases necesarias (model, repository, service, controller) siguiendo el patrón del ejemplo.</li>
+            <li>Prueba las APIs usando Postman con endpoints similares a los del ejemplo.</li>
+            <li>Sube los proyectos a un repositorio en GitHub y comparte el enlace.</li>
+        </ul>
+    </section>
+</main>
+
+<!-- Footer -->
+<footer class="bg-gray-800 text-white py-6">
+    <div class="container mx-auto px-4 text-center">
+        <p>&copy; 2025 Tutorial de Programación Reactiva con Spring Boot. Todos los derechos reservados.</p>
+    </div>
+</footer>
+
+<script>
+    function copyCode(button) {
+        const code = button.nextElementSibling.querySelector('code').textContent;
+        navigator.clipboard.writeText(code).then(() => {
+            button.textContent = '¡Copiado!';
+            setTimeout(() => button.textContent = 'Copiar', 2000);
+        });
+    }
+</script>
+</body>
+</html>
