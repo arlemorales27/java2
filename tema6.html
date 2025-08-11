@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Tutorial Profesional: Autenticación con JWT (Registro y Recuperación)</title>
+    <meta name="description" content="Guía paso a paso y práctica para construir un sistema de autenticación reactivo con Spring WebFlux + Security + JWT. Incluye conceptos, tendencias, estructura del proyecto, e instrucciones para crear el proyecto en IntelliJ IDEA Ultimate."/>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-java.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-yaml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-sql.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-xml-doc.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+    <style>
+        /* ====================
+           Diseño base y tema
+           ==================== */
+        :root {
+            --bg: #0b1020;
+            --bg-soft: #0f1530;
+            --card: #121934;
+            --text: #eaf1ff;
+            --muted: #a9b7d9;
+            --accent: #7aa2ff;
+            --accent-2: #9bffde;
+            --warn: #ffd479;
+            --danger: #ff8f8f;
+            --ok: #9dffa7;
+            --radius: 16px;
+            --shadow: 0 10px 30px rgba(0,0,0,.35);
+            color-scheme: dark;
+        }
+        .light {
+            --bg: #f7f9ff;
+            --bg-soft: #ffffff;
+            --card: #ffffff;
+            --text: #141a2f;
+            --muted: #5c6785;
+            --accent: #2b59ff;
+            --accent-2: #0fb;
+            --warn: #8a5d00;
+            --danger: #b00020;
+            --ok: #0a7d39;
+            color-scheme: light;
+        }
+
+        * { box-sizing: border-box; }
+        html, body { height: 100%; }
+        body {
+            margin: 0;
+            font: 16px/1.6 system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, "Helvetica Neue", Arial, "Apple Color Emoji", "Segoe UI Emoji";
+            background: radial-gradient(1200px 800px at 10% -10%, #17306d 0%, transparent 60%),
+            radial-gradient(1000px 700px at 110% 10%, #1b3f5e 0%, transparent 50%),
+            var(--bg);
+            color: var(--text);
+        }
+
+        /* ====================
+           Navbar
+           ==================== */
+        .nav { position: sticky; top: 0; z-index: 50; backdrop-filter: blur(8px); background: linear-gradient(135deg, var(--accent)); border-bottom: 1px solid color-mix(in oklab, var(--text) 12%, transparent); }
+        .nav .wrap { max-width: 1200px; margin: 0 auto; padding: 12px 20px; display: grid; grid-template-columns: 1fr auto auto; gap: 12px; align-items: center; }
+        .brand { display: inline-flex; gap: 10px; align-items: center; font-weight: 800; letter-spacing: .3px; }
+        .brand .logo { width: 28px; height: 28px; border-radius: 8px; background: linear-gradient(135deg, var(--accent), var(--accent-2)); box-shadow: var(--shadow); }
+        .nav a { color: var(--text); text-decoration: none; opacity: .9; }
+        .nav ul { list-style: none; display: flex; gap: 16px; margin: 0; padding: 0; }
+        .nav .right { display: flex; gap: 12px; align-items: center; }
+        .btn { border: 1px solid color-mix(in oklab, var(--text) 14%, transparent); background: linear-gradient(180deg, color-mix(in oklab, var(--card) 85%, transparent), var(--card)); color: var(--text); padding: 8px 14px; border-radius: 999px; text-decoration: none; display: inline-flex; gap: 8px; align-items: center; cursor: pointer; }
+        .btn:hover { border-color: color-mix(in oklab, var(--accent) 50%, transparent); box-shadow: 0 6px 20px color-mix(in oklab, var(--accent) 18%, transparent); }
+        .icon { width: 18px; height: 18px; display: inline-block; vertical-align: -3px; }
+
+        /* ====================
+           Layout
+           ==================== */
+        .wrap { max-width: 1200px; margin: 0 auto; padding: 28px 20px; }
+        section { scroll-margin-top: 80px; }
+
+        /* ====================
+           Hero
+           ==================== */
+        .hero { padding: 56px 0 12px; }
+        .hero-grid { display: grid; grid-template-columns: 1.3fr .7fr; gap: 28px; align-items: center; }
+        .hero h1 { font-size: clamp(28px, 4.5vw, 52px); line-height: 1.05; margin: 0 0 12px; }
+        .hero p { color: var(--muted); margin: 0 0 24px; font-size: clamp(15px, 1.2vw, 18px); }
+        .hero .card { background: linear-gradient(160deg, color-mix(in oklab, var(--card) 85%, transparent), var(--card)); border: 1px solid color-mix(in oklab, var(--text) 12%, transparent); border-radius: var(--radius); padding: 18px; box-shadow: var(--shadow); }
+
+        /* ====================
+           Cards y componentes
+           ==================== */
+        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+        .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; }
+        .card { background: linear-gradient(180deg, color-mix(in oklab, var(--card) 90%, transparent), var(--card)); border: 1px solid color-mix(in oklab, var(--text) 12%, transparent); border-radius: var(--radius); padding: 18px; box-shadow: var(--shadow); }
+        .card h3 { margin-top: 0; font-size: 18px; }
+        .muted { color: var(--muted); }
+        .tag { font-size: 12px; padding: 4px 8px; border-radius: 999px; border: 1px solid color-mix(in oklab, var(--text) 14%, transparent); }
+        .ok { color: var(--ok); } .warn { color: var(--warn); } .danger { color: var(--danger); }
+
+        /* ====================
+           Código y bloques (modo oscuro y claro)
+           ==================== */
+        pre { margin: 0; overflow: auto; }
+        code, pre code { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; font-size: 13px; }
+        .code { position: relative; background: #0b1020; border: 1px solid #1b254a; border-radius: 14px; padding: 14px; box-shadow: inset 0 0 0 1px rgba(255,255,255,.02); }
+        .code .copy { position: absolute; right: 10px; top: 10px; }
+        /* Modo claro: mejor contraste */
+        .light .code{background:#ffffff;border-color:#d7dcef;box-shadow: inset 0 0 0 1px rgba(0,0,0,.03);}
+        .light pre, .light code{color:#0e152b;}
+
+        /* ====================
+           Acordeón
+           ==================== */
+        .accordion { border-radius: var(--radius); overflow: hidden; border: 1px solid color-mix(in oklab, var(--text) 12%, transparent); }
+        .ac-item + .ac-item { border-top: 1px solid color-mix(in oklab, var(--text) 10%, transparent); }
+        .ac-btn { width: 100%; text-align: left; padding: 16px; background: none; color: var(--text); border: 0; display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 8px; cursor: pointer; }
+        .ac-content { display: none; padding: 0 16px 16px; background: color-mix(in oklab, var(--card) 88%, transparent); }
+        .ac-item[open] .ac-content { display: block; }
+
+        /* ====================
+           Flujo con flechas
+           ==================== */
+        .flow { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); align-items: center; text-align: center; }
+        .flow .step { padding: 14px; border-radius: 14px; border: 1px dashed color-mix(in oklab, var(--text) 15%, transparent); }
+        .arrow { text-align: center; opacity: .7; }
+
+        /* ====================
+           Utilidades responsivas
+           ==================== */
+        @media (max-width: 900px) {
+            .grid-3 { grid-template-columns: 1fr; }
+            .grid-2 { grid-template-columns: 1fr; }
+            .hero-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+<header class="nav">
+    <div class="wrap">
+        <a class="brand" href="#top" aria-label="Inicio">
+            <span class="logo"></span>
+            <span>JWT • WebFlux • Security</span>
+        </a>
+        <nav aria-label="Secciones">
+            <ul>
+                <li><a href="#conceptos">Conceptos</a></li>
+                <li><a href="#estructura">Estructura</a></li>
+                <li><a href="#flujo">Flujo</a></li>
+                <li><a href="#intellij">IntelliJ</a></li>
+                <li><a href="#validator">Validador</a></li>
+                <li><a href="#postman">Postman</a></li>
+            </ul>
+        </nav>
+        <div class="right">
+            <button id="theme" class="btn" title="Cambiar tema" aria-label="Cambiar tema">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3a9 9 0 1 0 9 9 7 7 0 0 1-9-9Z"/></svg>
+                Tema
+            </button>
+            <a class="btn" href="#validator">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 7 9 18l-5-5"/></svg>
+                Probar token
+            </a>
+            <a class="btn" id="repoLink" href="https://github.com/arlemorales27/auth-api.git" target="_blank" rel="noreferrer">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19V6l12-2v13"/><path d="M3 22h18"/></svg>
+                Repo GitHub
+            </a>
+        </div>
+    </div>
+</header>
+
+<main class="wrap" id="top">
+    <!-- HERO -->
+    <section class="hero" aria-labelledby="hero-title">
+        <div class="hero-grid">
+            <div>
+                <h1 id="hero-title">Sistema de autenticación moderno con <span style="background: linear-gradient(90deg,var(--accent),var(--accent-2)); -webkit-background-clip: text; background-clip: text; color: transparent;">JWT</span>, registro y recuperación</h1>
+                <p>Guía práctica y directa para construir una API reactiva con <strong>Spring WebFlux + Spring Security</strong> usando <strong>JSON Web Tokens</strong>. Incluye estructura del proyecto, flujo entre capas, creación del proyecto en <strong>IntelliJ IDEA Ultimate</strong> y un <strong>validador de token</strong> en vivo.</p>
+                <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                    <a class="btn" href="#conceptos">Empezar</a>
+                    <a class="btn" href="#estructura">Ver estructura</a>
+                </div>
+
+
+            </div>
+            <div class="card" aria-label="Resumen del stack">
+                <div class="grid-2">
+                    <div>
+                        <h3>Stack</h3>
+                        <ul class="muted" style="margin:0 0 8px 18px;">
+                            <li>Spring Boot 3.3.x (Java 21)</li>
+                            <li>WebFlux (reactivo)</li>
+                            <li>Spring Security + JWT</li>
+                            <li>R2DBC + MySQL</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3>Características</h3>
+                        <ul class="muted" style="margin:0 0 8px 18px;">
+                            <li>Registro y login</li>
+                            <li>Refresh y expiración</li>
+                            <li>Recuperación de contraseña</li>
+                            <li>Filtros/roles</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="muted" style="font-size:13px">Consejo: mantén los <span class="tag">DTO</span> como <strong>records</strong> en Java 21 para inmutabilidad y claridad.</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CONCEPTOS JWT -->
+    <section id="conceptos" aria-labelledby="conceptos-title">
+        <h2 id="conceptos-title">1) JWT: conceptos esenciales</h2>
+        <div class="grid-3">
+            <article class="card">
+                <h3>¿Qué es un JWT?</h3>
+                <p class="muted">Es un <em>JSON Web Token</em>: un token compacto y firmado que representa la identidad y privilegios de un usuario. Permite <strong>autenticación stateless</strong>; el servidor no guarda sesión: confía en el token firmado.</p>
+            </article>
+            <article class="card">
+                <h3>¿De qué se compone?</h3>
+                <ul class="muted" style="margin-left:18px">
+                    <li><strong>Header</strong>: tipo y algoritmo (<code>alg</code>).</li>
+                    <li><strong>Payload</strong>: claims (p.ej. <code>sub</code>, <code>roles</code>, <code>exp</code>).</li>
+                    <li><strong>Signature</strong>: firma del header+payload con secreto o clave privada.</li>
+                </ul>
+                <div class="tag" style="margin-top:8px">Formato: <code>xxxxx.yyyyy.zzzzz</code></div>
+            </article>
+            <article class="card">
+                <h3>Cómo se valida</h3>
+                <ol class="muted" style="margin-left:18px">
+                    <li>Decodificar header y payload (Base64URL).</li>
+                    <li>Comprobar <code>exp</code>, <code>nbf</code>, <code>iss</code>, <code>aud</code>.</li>
+                    <li>Verificar la <strong>firma</strong> con el secreto (HS256) o clave pública (RS256/ES256).</li>
+                </ol>
+                <p class="muted">Puedes usar el validador de abajo o una herramienta como <a href="https://jwt.io" target="_blank" rel="noreferrer">jwt.io</a>.</p>
+            </article>
+        </div>
+
+        <div class="grid-2" style="margin-top:18px;">
+            <article class="card">
+                <h3>Tendencias en autenticación</h3>
+                <ul class="muted" style="margin-left:18px">
+                    <li><strong>Tokens de corta vida</strong> + <em>refresh tokens</em>.</li>
+                    <li><strong>Rotación</strong> y <em>revocation lists</em> en el backend.</li>
+                    <li><strong>Zero Trust</strong>: validar todo, siempre.</li>
+                    <li><strong>Passkeys/WebAuthn</strong> para MFA sin fricción.</li>
+                    <li>Propagación segura en <em>microservicios</em> vía <code>Authorization: Bearer</code>.</li>
+                </ul>
+            </article>
+            <article class="card">
+                <h3>Buenas prácticas</h3>
+                <ul class="muted" style="margin-left:18px">
+                    <li>Firma asimétrica (RS/ES256) cuando compartes verificación.</li>
+                    <li>Incluye <code>kid</code> en el header para <em>key rotation</em>.</li>
+                    <li>Evita guardar datos sensibles en el payload (no va cifrado).</li>
+                    <li>Usa <code>HttpOnly</code> cookies para minimizar XSS.</li>
+                    <li>Valida <code>aud</code>/<code>iss</code> estrictamente.</li>
+                </ul>
+            </article>
+        </div>
+    </section>
+
+    <!-- ESTRUCTURA DEL PROYECTO -->
+    <section id="estructura" aria-labelledby="estructura-title">
+        <h2 id="estructura-title">2) Estructura del proyecto (WebFlux + Security + JWT)</h2>
+        <p class="muted">Basado en tu captura (paquete <code>com.arle.authapi</code>). Los <strong>DTO</strong> son <strong>records</strong> (Java 21).</p>
+
+        <div class="accordion" role="region" aria-label="Estructura explicada">
+            <details class="ac-item" open>
+                <summary class="ac-btn"><span><strong>config/</strong> → utilidades y seguridad</span><span class="tag">core</span></summary>
+                <div class="ac-content">
+                    <ul>
+                        <li><code>JwtUtil</code>: helpers de creación/parsing de JWT, fechas (<code>exp</code>), extraer <code>claims</code>.</li>
+                        <li><code>SecurityConfig</code>: configuración de <em>Spring Security</em> para WebFlux: cadenas de filtros, endpoints públicos (<code>/auth/**</code>), reglas de autorización y el filtro/AuthenticationWebFilter que valida el <code>Bearer</code> en cada request.</li>
+                    </ul>
+                </div>
+            </details>
+            <details class="ac-item">
+                <summary class="ac-btn"><span><strong>controller/</strong> → API HTTP</span><span class="tag">entrada</span></summary>
+                <div class="ac-content">
+                    <ul>
+                        <li><code>AuthController</code>: expone endpoints reactivos: <code>POST /auth/register</code>, <code>/auth/login</code>, <code>/auth/reset-password</code>, etc. Devuelve <code>Mono</code>/<code>Flux</code> con respuestas (tokens, mensajes).</li>
+                    </ul>
+                </div>
+            </details>
+            <details class="ac-item">
+                <summary class="ac-btn"><span><strong>model/</strong> → dominio y DTOs</span><span class="tag">datos</span></summary>
+                <div class="ac-content">
+                    <ul>
+                        <li><code>User</code>: entidad reactiva mapeada a la tabla (id, email, password, roles, enabled, timestamps).</li>
+                        <li><code>LoginRequest</code>, <code>RegisterRequest</code>, <code>ResetPasswordRequest</code>: <strong>records</strong> para validación/serialización, inmutables.</li>
+                    </ul>
+                </div>
+            </details>
+            <details class="ac-item">
+                <summary class="ac-btn"><span><strong>repository/</strong> → acceso a datos</span><span class="tag">persistencia</span></summary>
+                <div class="ac-content">
+                    <ul>
+                        <li><code>UserRepository</code>: interfaz R2DBC reactiva (<code>Mono&lt;User&gt;</code>, <code>Flux&lt;User&gt;</code>) con consultas por email/username.</li>
+                    </ul>
+                </div>
+            </details>
+            <details class="ac-item">
+                <summary class="ac-btn"><span><strong>service/</strong> → lógica de negocio</span><span class="tag">servicios</span></summary>
+                <div class="ac-content">
+                    <ul>
+                        <li><code>JwtService</code>: generación/validación de tokens: <em>access</em> y opcionalmente <em>refresh</em>, claims, vencimiento.</li>
+                        <li><code>UserService</code>: registro (hash de contraseña), login (validación), recuperación (tokens de un solo uso, envío de correo), consulta de perfil.</li>
+                    </ul>
+                </div>
+            </details>
+            <details class="ac-item">
+                <summary class="ac-btn"><span><strong>AuthApiApplication</strong></span><span class="tag">main</span></summary>
+                <div class="ac-content">
+                    <p>Clase <code>@SpringBootApplication</code> con el <strong>método main</strong>. Arranca el <em>Netty server</em> de WebFlux y carga el contexto (Security, repositorios, servicios).</p>
+                </div>
+            </details>
+            <details class="ac-item">
+                <summary class="ac-btn"><span><strong>resources/</strong> → configuración</span><span class="tag">config</span></summary>
+                <div class="ac-content">
+                    <ul>
+                        <li><code>application.yml</code>/<code>.properties</code>: puertos, datasource R2DBC, propiedades JWT (secreto, expiración), logging.</li>
+                    </ul>
+                </div>
+            </details>
+        </div>
+
+        <div class="grid-2" style="margin-top:18px;">
+            <div class="card">
+                <h3>Archivo principal (esqueleto)</h3>
+                <div class="code"><button class="btn copy" data-copy="#main">Copiar</button><pre id="main"><code>// AuthApiApplication.java (idea)
+@SpringBootApplication
+public class AuthApiApplication {
+  public static void main(String[] args) {
+    SpringApplication.run(AuthApiApplication.class, args);
+  }
+}
+</code></pre></div>
+                <p class="muted" style="margin-top:8px">El resto de beans (Security, repositorios R2DBC y servicios) se inicializan automáticamente por <em>auto-configuration</em>.</p>
+            </div>
+            <div class="card">
+                <h3>Endpoints típicos</h3>
+                <div class="code"><button class="btn copy" data-copy="#endpoints">Copiar</button><pre id="endpoints"><code>// AuthController (métodos ejemplo)
+POST /auth/register   // recibe RegisterRequest (record)
+POST /auth/login      // recibe LoginRequest y devuelve { accessToken, refreshToken }
+POST /auth/reset-password // ResetPasswordRequest (token de un solo uso)
+GET  /me              // requiere Bearer Token válido
+</code></pre></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FLUJO DE TRABAJO -->
+    <section id="flujo" aria-labelledby="flujo-title">
+        <h2 id="flujo-title">3) Flujo de trabajo entre módulos</h2>
+        <div class="flow" aria-label="Diagrama de flujo">
+            <div class="step"><strong>Controller</strong><br><span class="muted">Recibe DTOs (records). Valida y delega.</span></div>
+            <div class="arrow">➜</div>
+            <div class="step"><strong>Service</strong><br><span class="muted">Reglas: hash, emisión/verificación de JWT.</span></div>
+            <div class="arrow">➜</div>
+            <div class="step"><strong>Repository</strong><br><span class="muted">R2DBC: consultas no bloqueantes.</span></div>
+            <div class="arrow">➜</div>
+            <div class="step"><strong>Security Filter</strong><br><span class="muted">Extrae Bearer, crea Authentication.</span></div>
+            <div class="arrow">➜</div>
+            <div class="step"><strong>WebFlux</strong><br><span class="muted">Responde con Mono/Flux.</span></div>
+        </div>
+        <p class="muted" style="margin-top:12px">Cada request entra por Security (filtro), que valida el token con <code>JwtService/JwtUtil</code>. Si es válido, el <em>SecurityContext</em> agrega el usuario/roles y el <strong>Controller</strong> accede a ellos sin tocar la base de datos salvo que lo necesite.</p>
+    </section>
+
+    <!-- INTELLIJ -->
+    <section id="intellij" aria-labelledby="intellij-title">
+        <h2 id="intellij-title">4) Cómo crear el proyecto en IntelliJ IDEA Ultimate</h2>
+        <div class="grid-2">
+            <div class="card">
+                <h3>Requisitos</h3>
+                <ul class="muted" style="margin-left:18px">
+                    <li>IntelliJ IDEA <strong>Ultimate 2025.x</strong>.</li>
+                    <li>Java <strong>21+</strong> como SDK del proyecto.</li>
+                    <li>Plugin <strong>Spring Tools 4</strong> (si no viene incluido).</li>
+                </ul>
+            </div>
+            <div class="card">
+                <h3>Crear con Spring Initializr</h3>
+                <ol class="muted" style="margin-left:18px">
+                    <li><strong>File ▸ New ▸ Project ▸ Spring Initializr</strong>.</li>
+                    <li>Configura:<br/>Project: <code>Maven</code> | Language: <code>Java</code> | Spring Boot: <code>3.3.x</code> | Group: <code>com.example</code> | Artifact: <code>auth-api</code> | Java: <code>21</code> | Packaging: <code>JAR</code>.</li>
+                    <li>Dependencies: <strong>Spring WebFlux</strong>, <strong>Spring Security</strong>, <strong>Spring Data R2DBC</strong>, <strong>MySQL Driver</strong>, <strong>Validation</strong>, <strong>Lombok</strong>, <strong>Spring Boot DevTools</strong>.</li>
+                    <li>Finaliza con <strong>Create</strong>.</li>
+                </ol>
+            </div>
+        </div>
+        <div class="grid-2">
+            <div class="card">
+                <h3>Config básica <code>application.yml</code></h3>
+                <div class="code"><button class="btn copy" data-copy="#yaml">Copiar</button><pre id="yaml"><code>server:
+  port: 8080
+spring:
+  r2dbc:
+    url: r2dbc:pool:mysql://localhost:3306/authdb
+    username: user
+    password: pass
+  jackson:
+    default-property-inclusion: non_null
+jwt:
+  secret: ${JWT_SECRET:change-me}
+  access-minutes: 15
+  refresh-days: 7
+</code></pre></div>
+            </div>
+            <div class="card">
+                <h3>Esqueleto Security (WebFlux)</h3>
+                <div class="code"><button class="btn copy" data-copy="#security">Copiar</button><pre id="security"><code>@Configuration
+@EnableWebFluxSecurity
+public class SecurityConfig {
+  @Bean SecurityWebFilterChain springSecurity(ServerHttpSecurity http) {
+    return http
+      .csrf(ServerHttpSecurity.CsrfSpec::disable)
+      .authorizeExchange(ex -> ex
+        .pathMatchers("/auth/**", "/actuator/health").permitAll()
+        .anyExchange().authenticated())
+      .oauth2ResourceServer(o -> o.jwt()) // o tu propio AuthenticationWebFilter
+      .build();
+  }
+}
+</code></pre></div>
+                <p class="muted">En proyectos con JWT "manual", reemplaza <code>oauth2ResourceServer</code> por un filtro que lea <code>Authorization: Bearer</code> y verifique con <code>JwtService</code>.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- VALIDATOR -->
+    <section id="validator" aria-labelledby="validator-title">
+        <h2 id="validator-title">5) Validador simple de JWT (local)</h2>
+        <div class="card">
+            <p class="muted">Pega tu token para decodificarlo y comprobar expiración (<code>exp</code>). Para firmas <code>HS256</code>, puedes verificar con tu secreto. Para verificación avanzada (RS/ES), usa también <a href="https://jwt.io" target="_blank" rel="noreferrer">jwt.io</a>.</p>
+            <div class="grid-2">
+                <div>
+                    <label for="token" class="muted">Token</label>
+                    <textarea id="token" rows="6" style="width:100%; border-radius:12px; padding:10px; background:var(--bg-soft); color:var(--text); border:1px solid color-mix(in oklab, var(--text) 12%, transparent)"></textarea>
+                    <div style="display:flex; gap:10px; margin-top:10px; flex-wrap:wrap;">
+                        <button class="btn" id="decode">Decodificar</button>
+                        <button class="btn" id="verify">Verificar HS256</button>
+                        <input id="secret" placeholder="secreto HS256" style="flex:1; min-width:180px; border-radius:999px; padding:8px 12px; border:1px solid color-mix(in oklab, var(--text) 12%, transparent); background:var(--bg-soft); color:var(--text)"/>
+                    </div>
+                </div>
+                <div>
+                    <div class="grid-2">
+                        <div class="card">
+                            <h3>Header</h3>
+                            <pre id="out-header" class="muted">—</pre>
+                        </div>
+                        <div class="card">
+                            <h3>Payload</h3>
+                            <pre id="out-payload" class="muted">—</pre>
+                        </div>
+                    </div>
+                    <div class="card" style="margin-top:12px">
+                        <h3>Estado</h3>
+                        <div id="out-status" class="muted">Esperando token…</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- POSTMAN -->
+    <section id="postman" aria-labelledby="postman-title">
+        <h2 id="postman-title">6) Pruebas en Postman</h2>
+        <div class="grid-2">
+            <div class="card">
+                <h3>Configuración inicial</h3>
+                <ol class="muted" style="margin-left:18px">
+                    <li>Descarga e instala <strong>Postman 2025.x</strong>.</li>
+                    <li>Crea una <strong>colección</strong> llamada <strong>AuthAPI</strong>.</li>
+                    <li>Configura un <strong>entorno</strong> con la variable <code>baseUrl</code>:
+                        <div class="code"><pre><code>baseUrl = http://localhost:8080/api/auth</code></pre></div>
+                    </li>
+                </ol>
+            </div>
+            <div class="card">
+                <h3>Notas</h3>
+                <ul class="muted" style="margin-left:18px">
+                    <li>Usa el JWT que devuelve <code>/login</code> o <code>/register</code> para los endpoints protegidos.</li>
+                    <li>Asegúrate de tener <strong>MySQL</strong> corriendo y la BD <code>authdb</code> creada.</li>
+                    <li>Guarda <code>{{token}}</code> como variable del entorno para reusar en <em>Authorization</em>.</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>a) Registro de usuario</h3>
+            <div class="grid-2">
+                <div>
+                    <ul class="muted" style="margin-left:18px">
+                        <li>Método: <strong>POST</strong></li>
+                        <li>URL: <code>{{baseUrl}}/register</code></li>
+                        <li>Body (JSON):</li>
+                    </ul>
+                    <div class="code"><pre><code>{
+  "username": "testuser",
+  "password": "password123",
+  "email": "testuser@example.com",
+  "role": "USER"
+}</code></pre></div>
+                </div>
+                <div>
+                    <h4>Respuesta esperada</h4>
+                    <ul class="muted" style="margin-left:18px">
+                        <li>Código: <strong>201 Created</strong></li>
+                        <li>Body: token JWT (<em>eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...</em>)</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>b) Inicio de sesión</h3>
+            <div class="grid-2">
+                <div>
+                    <ul class="muted" style="margin-left:18px">
+                        <li>Método: <strong>POST</strong></li>
+                        <li>URL: <code>{{baseUrl}}/login</code></li>
+                        <li>Body (JSON):</li>
+                    </ul>
+                    <div class="code"><pre><code>{
+  "username": "testuser",
+  "password": "password123"
+}</code></pre></div>
+                </div>
+                <div>
+                    <h4>Respuesta esperada</h4>
+                    <ul class="muted" style="margin-left:18px">
+                        <li>Código: <strong>200 OK</strong></li>
+                        <li>Body: token JWT</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>c) Solicitar recuperación de contraseña</h3>
+            <div class="grid-2">
+                <div>
+                    <ul class="muted" style="margin-left:18px">
+                        <li>Método: <strong>POST</strong></li>
+                        <li>URL: <code>{{baseUrl}}/reset-password-request?email=testuser@example.com</code></li>
+                        <li>Body: <em>Ninguno</em></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4>Respuesta esperada</h4>
+                    <ul class="muted" style="margin-left:18px">
+                        <li>Código: <strong>200 OK</strong></li>
+                        <li>Body: token de recuperación (<em>550e8400-e29b-41d4-a716-446655440000</em>)</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>d) Restablecer contraseña</h3>
+            <div class="grid-2">
+                <div>
+                    <ul class="muted" style="margin-left:18px">
+                        <li>Método: <strong>POST</strong></li>
+                        <li>URL: <code>{{baseUrl}}/reset-password</code></li>
+                        <li>Body (JSON):</li>
+                    </ul>
+                    <div class="code"><pre><code>{
+  "token": "550e8400-e29b-41d4-a716-446655440000",
+  "newPassword": "newpassword123"
+}</code></pre></div>
+                </div>
+                <div>
+                    <h4>Respuesta esperada</h4>
+                    <ul class="muted" style="margin-left:18px">
+                        <li>Código: <strong>200 OK</strong></li>
+                        <li>Body: <code>"Password reset successfully"</code></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>e) Acceso con rol ADMIN</h3>
+            <div class="grid-2">
+                <div>
+                    <ul class="muted" style="margin-left:18px">
+                        <li>Método: <strong>GET</strong></li>
+                        <li>URL: <code>{{baseUrl}}/admin/test</code></li>
+                        <li>Headers: <code>Authorization: Bearer {{token}}</code></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4>Respuesta esperada</h4>
+                    <ul class="muted" style="margin-left:18px">
+                        <li>Con token de usuario <strong>ADMIN</strong>: <strong>200 OK</strong> — <code>"Admin access granted"</code></li>
+                        <li>Con token de usuario no ADMIN: <strong>403 Forbidden</strong></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>f) Acceso con rol USER o CLIENT</h3>
+            <div class="grid-2">
+                <div>
+                    <ul class="muted" style="margin-left:18px">
+                        <li>Método: <strong>GET</strong></li>
+                        <li>URL: <code>{{baseUrl}}/user/test</code></li>
+                        <li>Headers: <code>Authorization: Bearer {{token}}</code></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4>Respuesta esperada</h4>
+                    <ul class="muted" style="margin-left:18px">
+                        <li>Con token de usuario <strong>USER</strong> o <strong>CLIENT</strong>: <strong>200 OK</strong> — <code>"User or Client access granted"</code></li>
+                        <li>Sin token o token inválido: <strong>401 Unauthorized</strong></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CIERRE -->
+    <section aria-labelledby="tips-title">
+        <h2 id="tips-title">7) Checklist final</h2>
+        <div class="grid-3">
+            <div class="card">
+                <h3>Seguridad</h3>
+                <ul class="muted" style="margin-left:18px">
+                    <li>Secreto/llaves fuera del repositorio (variables de entorno).</li>
+                    <li>Tokens cortos + refresco + rotación.</li>
+                    <li>Scopes/roles en claims mínimos.</li>
+                </ul>
+            </div>
+            <div class="card">
+                <h3>Observabilidad</h3>
+                <ul class="muted" style="margin-left:18px">
+                    <li>Auditoría de login/reset.</li>
+                    <li>Métricas de errores y latencia.</li>
+                    <li>Correlación por <code>trace-id</code>.</li>
+                </ul>
+            </div>
+            <div class="card">
+                <h3>Experiencia</h3>
+                <ul class="muted" style="margin-left:18px">
+                    <li>Mensajes de error claros.</li>
+                    <li>Contraseñas robustas + MFA/Passkeys.</li>
+                    <li>Documenta los endpoints (OpenAPI).</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+</main>
+
+<footer class="bg-gray-800 text-white py-6">
+    <div class="container mx-auto px-4 text-center">
+        <p>&copy; 2025 Tutorial de Programación Reactiva con Spring Boot. Arle Morales Ortiz</p>
+    </div>
+</footer>
+
+<script>
+    // ===== Tema claro/oscuro =====
+    const themeBtn = document.getElementById('theme');
+    themeBtn.addEventListener('click', ()=>{
+        document.documentElement.classList.toggle('light');
+        localStorage.setItem('theme', document.documentElement.classList.contains('light') ? 'light' : 'dark');
+    });
+    (function(){ const t = localStorage.getItem('theme'); if(t==='light') document.documentElement.classList.add('light'); })();
+
+    // ===== Copiar bloques =====
+    document.querySelectorAll('.copy').forEach(btn=>{
+        btn.addEventListener('click', ()=>{
+            const sel = document.querySelector(btn.dataset.copy);
+            if (!sel) return;
+            const text = sel.innerText;
+            navigator.clipboard.writeText(text).then(()=>{
+                btn.textContent = 'Copiado';
+                setTimeout(()=>btn.textContent='Copiar', 1200);
+            });
+        })
+    });
+
+    // ===== Validador sencillo =====
+    const $ = (id)=>document.getElementById(id);
+    function base64urlDecode(str){
+        str = str.replace(/-/g,'+').replace(/_/g,'/');
+        const pad = str.length % 4; if(pad) str += '='.repeat(4-pad);
+        try { return atob(str); } catch(e) { return null; }
+    }
+    function parseJwt(tok){
+        const [h,p,s] = (tok||'').split('.');
+        if(!h||!p) return null;
+        const header = JSON.parse(base64urlDecode(h) || '{}');
+        const payload = JSON.parse(base64urlDecode(p) || '{}');
+        return { header, payload, signature: s||'' };
+    }
+    function pretty(o){ return JSON.stringify(o, null, 2); }
+
+    function status(msg, type=''){
+        const el = $('out-status');
+        el.textContent = msg;
+        el.className = type ? type : '';
+    }
+
+    $('decode').addEventListener('click', ()=>{
+        const t = $('token').value.trim();
+        const data = parseJwt(t);
+        if(!data){ status('Token inválido', 'danger'); return; }
+        $('out-header').textContent = pretty(data.header);
+        $('out-payload').textContent = pretty(data.payload);
+        // exp check
+        if (typeof data.payload.exp === 'number') {
+            const now = Math.floor(Date.now()/1000);
+            if (now >= data.payload.exp) status('Token EXPIRADO (exp='+data.payload.exp+')', 'warn');
+            else status('Token vigente. exp='+data.payload.exp+' (faltan '+(data.payload.exp-now)+'s)', 'ok');
+        } else {
+            status('Decodificado. Sin claim exp.', '');
+        }
+    });
+
+    // HS256 verify with SubtleCrypto
+    async function verifyHS256(token, secret){
+        const [h,p,sig] = token.split('.');
+        if(!h||!p||!sig) throw new Error('Formato no válido');
+        const data = new TextEncoder().encode(h + '.' + p);
+        const key = await crypto.subtle.importKey(
+            'raw', new TextEncoder().encode(secret), { name:'HMAC', hash:'SHA-256' }, false, ['verify']
+        );
+        // base64url -> ArrayBuffer
+        let s = sig.replace(/-/g,'+').replace(/_/g,'/');
+        const pad = s.length % 4; if(pad) s += '='.repeat(4-pad);
+        const signature = Uint8Array.from(atob(s), c => c.charCodeAt(0));
+        const ok = await crypto.subtle.verify('HMAC', key, signature, data);
+        return ok;
+    }
+
+    $('verify').addEventListener('click', async ()=>{
+        const t = $('token').value.trim();
+        const secret = $('secret').value;
+        if(!t || !secret) { status('Ingresa token y secreto HS256', 'warn'); return; }
+        try {
+            const ok = await verifyHS256(t, secret);
+            status(ok ? 'Firma HS256 válida ✅' : 'Firma HS256 NO válida ❌', ok ? 'ok' : 'danger');
+        } catch(e){ status('Error verificando: '+e.message, 'danger'); }
+    });
+
+    // ===== Repo GitHub (guardar/abrir) =====
+    const repoInput = document.getElementById('repoUrl');
+    const repoLink = document.getElementById('repoLink');
+    const repoOpen = document.getElementById('openRepo');
+    const repoSave = document.getElementById('saveRepo');
+
+    function applyRepoUrl(url){
+        if(!url) return;
+        if(repoLink) { repoLink.href = url; repoLink.title = url; }
+        if(repoOpen) { repoOpen.href = url; }
+    }
+    const savedRepo = localStorage.getItem('repoUrl');
+    if(savedRepo){ applyRepoUrl(savedRepo); if(repoInput) repoInput.value = savedRepo; }
+    if(repoSave){ repoSave.addEventListener('click', ()=>{ const v = (repoInput?.value||'').trim(); if(!v) return; localStorage.setItem('repoUrl', v); applyRepoUrl(v); repoSave.textContent='Guardado'; setTimeout(()=>repoSave.textContent='Guardar', 1200); }); }
+</script>
+</body>
+</html>
