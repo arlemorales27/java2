@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Tutorial Profesional • Microservicios Reactivos (WebFlux + R2DBC)</title>
+    <meta name="description" content="Guía paso a paso y responsiva sobre microservicios REACTIVOS: conceptos, BDs, beneficios vs monolito, empresas, comunicación, creación en IntelliJ IDEA Ultimate, estructura completa (según diagrama), y colección de pruebas en Postman para puertos 8081/8082/8083 y gateway 8080."/>
+
+    <!-- Tailwind CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Prism (resaltado de código) - tema CLARO -->
+    <!-- Usamos un tema claro y luego forzamos fondo gris claro a todo el código -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-solarizedlight.min.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-java.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-yaml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
+
+    <!-- Iconos modernos -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet" />
+
+    <style>
+        /* ====================
+           Diseño base y tema (colores provistos)
+           ==================== */
+        :root {
+            --bg: #0b1020;
+            --bg-soft: #0f1530;
+            --card: #121934;
+            --text: #eaf1ff;
+            --muted: #a9b7d9;
+            --accent: #7aa2ff;
+            --accent-2: #9bffde;
+            --warn: #ffd479;
+            --danger: #ff8f8f;
+            --ok: #9dffa7;
+            --radius: 16px;
+            --shadow: 0 10px 30px rgba(0,0,0,.35);
+            /* Fondo claro de código en TODO el sitio */
+            --code-bg: #f3f4f6; /* gris claro */
+            --code-fg: #334155; /* gris-azulado (no negro) para inline code */
+            color-scheme: dark;
+        }
+        .light {
+            --bg: #f7f9ff;
+            --bg-soft: #ffffff;
+            --card: #ffffff;
+            --text: #141a2f;
+            --muted: #5c6785;
+            --accent: #2b59ff;
+            --accent-2: #0fb;
+            --warn: #8a5d00;
+            --danger: #b00020;
+            --ok: #0a7d39;
+            /* Mantiene el mismo fondo de código en tema claro */
+            --code-bg: #f3f4f6;
+            --code-fg: #334155;
+            color-scheme: light;
+        }
+
+        * { box-sizing: border-box; }
+        html, body { height: 100%; }
+        body {
+            margin: 0;
+            font: 16px/1.6 system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, "Helvetica Neue", Arial, "Apple Color Emoji", "Segoe UI Emoji";
+            background: radial-gradient(1200px 800px at 10% -10%, #17306d 0%, transparent 60%),
+            radial-gradient(1000px 700px at 110% 10%, #1b3f5e 0%, transparent 50%),
+            var(--bg);
+            color: var(--text);
+        }
+
+        /* Navbar */
+        .nav { position: sticky; top: 0; z-index: 50; backdrop-filter: blur(8px); background: linear-gradient(135deg, var(--accent), var(--accent-2)); border-bottom: 1px solid color-mix(in oklab, var(--text) 12%, transparent); }
+        .nav .wrap { max-width: 1200px; margin: 0 auto; padding: 12px 20px; display: grid; grid-template-columns: 1fr auto auto; gap: 12px; align-items: center; }
+        .brand { display: inline-flex; gap: 10px; align-items: center; font-weight: 800; letter-spacing: .3px; }
+        .brand .logo { width: 28px; height: 28px; border-radius: 8px; background: linear-gradient(135deg, var(--accent), var(--accent-2)); box-shadow: var(--shadow); }
+        .nav a { color: var(--text); text-decoration: none; opacity: .95; }
+        .nav ul { list-style: none; display: flex; gap: 14px; margin: 0; padding: 0; }
+        .nav .right { display: flex; gap: 10px; align-items: center; }
+        .btn { border: 1px solid color-mix(in oklab, var(--text) 14%, transparent); background: linear-gradient(180deg, color-mix(in oklab, var(--card) 85%, transparent), var(--card)); color: var(--text); padding: 8px 14px; border-radius: 999px; text-decoration: none; display: inline-flex; gap: 8px; align-items: center; cursor: pointer; }
+        .btn:hover { border-color: color-mix(in oklab, var(--accent) 50%, transparent); box-shadow: 0 6px 20px color-mix(in oklab, var(--accent) 18%, transparent); transform: translateY(-1px); }
+        .icon { width: 18px; height: 18px; display: inline-block; vertical-align: -3px; }
+
+        .wrap { max-width: 1200px; margin: 0 auto; padding: 28px 20px; }
+        section { scroll-margin-top: 84px; }
+
+        /* Hero */
+        .hero { padding: 56px 0 18px; }
+        .hero-grid { display: grid; grid-template-columns: 1.2fr .8fr; gap: 28px; align-items: center; }
+        .hero h1 { font-size: clamp(28px, 4.5vw, 52px); line-height: 1.05; margin: 0 0 12px; }
+        .hero p { color: var(--muted); margin: 0 0 22px; font-size: clamp(15px, 1.2vw, 18px); }
+        .hero .card { background: linear-gradient(160deg, color-mix(in oklab, var(--card) 85%, transparent), var(--card)); border: 1px solid color-mix(in oklab, var(--text) 12%, transparent); border-radius: var(--radius); padding: 18px; box-shadow: var(--shadow); }
+
+        /* Cards */
+        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+        .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; }
+        .card { background: linear-gradient(180deg, color-mix(in oklab, var(--card) 90%, transparent), var(--card)); border: 1px solid color-mix(in oklab, var(--text) 12%, transparent); border-radius: var(--radius); padding: 18px; box-shadow: var(--shadow); }
+        .card h3 { margin-top: 0; font-size: 18px; }
+        .muted { color: var(--muted); }
+        .tag { font-size: 12px; padding: 4px 8px; border-radius: 999px; border: 1px solid color-mix(in oklab, var(--text) 14%, transparent); }
+        .ok { color: var(--ok); } .warn { color: var(--warn); } .danger { color: var(--danger); }
+
+        /* ====================
+           CÓDIGO (bloques e inline) — SIEMPRE fondo gris claro
+           ==================== */
+        pre { margin: 0; overflow: auto; }
+        code, pre code { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; font-size: 13px; }
+
+        /* Contenedor visual para bloques con botón copiar */
+        .code {
+            position: relative;
+            background: var(--code-bg) !important;
+            border: 1px solid #e5e7eb; /* gris-200 */
+            border-radius: 14px;
+            padding: 14px;
+            box-shadow: none;
+        }
+        .code .copy { position: absolute; right: 10px; top: 10px; }
+
+        /* Fuerza el fondo gris claro en TODOS los bloques de código Prism */
+        pre[class*="language-"], code[class*="language-"] {
+            background: var(--code-bg) !important;
+        }
+        /* Color base para inline code sin lenguaje (no negro) */
+        code:not(pre > code):not([class*="language-"]) {
+            background: var(--code-bg);
+            color: var(--code-fg);
+            padding: .15rem .35rem;
+            border-radius: .375rem;
+            border: 1px solid #e5e7eb;
+        }
+
+        /* Acordeón */
+        .accordion { border-radius: var(--radius); overflow: hidden; border: 1px solid color-mix(in oklab, var(--text) 12%, transparent); }
+        .ac-item + .ac-item { border-top: 1px solid color-mix(in oklab, var(--text) 10%, transparent); }
+        .ac-btn { width: 100%; text-align: left; padding: 16px; background: none; color: var(--text); border: 0; display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 8px; cursor: pointer; }
+        .ac-content { display: none; padding: 0 16px 16px; background: color-mix(in oklab, var(--card) 88%, transparent); }
+        .ac-item[open] .ac-content { display: block; }
+
+        /* Flow */
+        .flow { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); align-items: center; text-align: center; }
+        .flow .step { padding: 14px; border-radius: 14px; border: 1px dashed color-mix(in oklab, var(--text) 15%, transparent); }
+        .arrow { text-align: center; opacity: .7; }
+
+        /* Animaciones */
+        .reveal { opacity: 0; transform: translateY(14px) scale(.98); transition: opacity .6s cubic-bezier(.2,.7,.2,1), transform .6s cubic-bezier(.2,.7,.2,1); }
+        .reveal.show { opacity: 1; transform: none; }
+        .glow { box-shadow: 0 0 0 0 rgba(122,162,255,.45); animation: pulseGlow 2.6s ease-in-out infinite; }
+        @keyframes pulseGlow { 0% { box-shadow: 0 0 0 0 rgba(122,162,255,.45);} 70% { box-shadow: 0 0 0 12px rgba(122,162,255,0);} 100% { box-shadow: 0 0 0 0 rgba(122,162,255,0);} }
+
+        /* Responsivo */
+        @media (max-width: 900px) {
+            .grid-3 { grid-template-columns: 1fr; }
+            .grid-2 { grid-template-columns: 1fr; }
+            .hero-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+<header class="nav">
+    <div class="wrap">
+        <a class="brand" href="#top" aria-label="Inicio">
+            <span class="logo"></span>
+            <span>Microservicios REACTIVOS • WebFlux</span>
+        </a>
+        <nav aria-label="Secciones">
+            <ul>
+                <li><a href="#que-es">¿Qué es?</a></li>
+                <li><a href="#bases">Bases de datos</a></li>
+                <li><a href="#beneficios">Beneficios vs Monolito</a></li>
+                <li><a href="#empresas">Empresas</a></li>
+                <li><a href="#comunicacion">Comunicación</a></li>
+                <li><a href="#intellij">IntelliJ</a></li>
+                <li><a href="#estructura">Estructura</a></li>
+                <li><a href="#postman">Postman</a></li>
+                <li><a href="#glosario">Glosario</a></li>
+            </ul>
+        </nav>
+
+        <div class="right">
+            <button id="theme" class="btn" title="Cambiar tema" aria-label="Cambiar tema">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3a9 9 0 1 0 9 9 7 7 0 0 1-9-9Z"/></svg>
+                Tema
+            </button>
+            <a class="btn" id="repoLink" href="https://github.com/arlemorales27/microreactivo.git" target="_blank" rel="noreferrer">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19V6l12-2v13"/><path d="M3 22h18"/></svg>
+                Repo GitHub
+            </a>
+        </div>
+    </div>
+</header>
+
+<main class="wrap" id="top">
+    <!-- HERO -->
+    <section class="hero" aria-labelledby="hero-title">
+        <div class="hero-grid">
+            <div class="reveal show">
+                <h1 id="hero-title">Arquitectura de <span style="background: linear-gradient(90deg,var(--accent),var(--accent-2)); -webkit-background-clip: text; background-clip: text; color: transparent;">microservicios <em>reactivos</em></span></h1>
+                <p>Diseña y construye servicios con <strong>Spring WebFlux</strong> + <strong>R2DBC</strong>. Esta guía explica conceptos, la estructura exacta del proyecto <code>microreactivo-2025</code>  <strong>API Gateway</strong> en <code>8080</code>.</p>
+                <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                    <a class="btn" href="#estructura"><i class="fa-regular fa-folder-open"></i> Ver estructura</a>
+                    <a class="btn" href="#glosario"><i class="fa-regular fa-circle-question"></i> Conceptos</a>
+                </div>
+            </div>
+            <div class="card reveal" aria-label="Resumen rápido">
+                <div class="grid-2">
+                    <div>
+                        <h3><i class="fa-solid fa-diagram-project"></i> Stack</h3>
+                        <ul class="muted ml-5 list-disc">
+                            <li>Java 21 + Spring Boot 3.3.x</li>
+                            <li>Reactive: WebFlux + Reactor (Mono/Flux)</li>
+                            <li>Persistencia: R2DBC (Postgres/H2/MySQL*)</li>
+                            <li>Mensajería (opcional): Kafka/RabbitMQ</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3><i class="fa-regular fa-circle-check"></i> Características</h3>
+                        <ul class="muted ml-5 list-disc">
+                            <li>Handlers + Routers funcionales</li>
+                            <li>Backpressure, no‑bloqueo</li>
+                            <li>Observabilidad y pruebas contractuales</li>
+                            <li>API Gateway reactivo</li>
+                        </ul>
+                    </div>
+                </div>
+                <p class="muted text-sm mt-2">*MySQL con R2DBC requiere driver compatible (p.ej., MariaDB). Para demos, <strong>H2/Postgres</strong> es más simple.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 1. ¿Qué es un microservicio? -->
+    <section id="que-es" aria-labelledby="que-es-title" class="reveal">
+        <h2 id="que-es-title">1) ¿Qué es un microservicio?</h2>
+        <div class="grid-3">
+            <article class="card">
+                <h3><i class="fa-solid fa-puzzle-piece"></i> Definición</h3>
+                <p class="muted">Unidad pequeña y autónoma de despliegue que implementa una <strong>capacidad de negocio</strong> (p.ej., <em>customers</em>, <em>products</em>, <em>orders</em>). En reactivo: expone <strong>endpoints no bloqueantes</strong> (WebFlux) y usa <strong>reactive streams</strong>.</p>
+            </article>
+            <article class="card">
+                <h3><i class="fa-solid fa-bullseye"></i> Propiedades</h3>
+                <ul class="muted ml-5 list-disc">
+                    <li><strong>Autonomía</strong> (deploy independiente)</li>
+                    <li><strong>Encapsulamiento de datos</strong> (BD por servicio)</li>
+                    <li><strong>Comunicación explícita</strong> (API/eventos)</li>
+                    <li><strong>Observabilidad</strong> (trazas, métricas)</li>
+                </ul>
+            </article>
+            <article class="card">
+                <h3><i class="fa-regular fa-lightbulb"></i> Cuándo aplican</h3>
+                <ul class="muted ml-5 list-disc">
+                    <li>Dominios claros (DDD)</li>
+                    <li>Múltiples equipos y entregas frecuentes</li>
+                    <li>Necesidad de escalado selectivo</li>
+                    <li>Alto volumen concurrente</li>
+                </ul>
+            </article>
+        </div>
+    </section>
+
+    <!-- 2. ¿Cuántas bases de datos? -->
+    <section id="bases" aria-labelledby="bases-title" class="mt-10 reveal">
+        <h2 id="bases-title">2) ¿Cuántas bases de datos se deben tener?</h2>
+        <div class="grid-2">
+            <article class="card">
+                <h3><i class="fa-solid fa-database"></i> Regla principal</h3>
+                <p class="muted"><strong>Una base de datos por servicio</strong> (o <em>schema</em> aislado) para preservar autonomía y evitar acoplamientos. Integración mediante APIs/ eventos; para consultas transversales, genera <em>read models</em>.</p>
+            </article>
+            <article class="card">
+                <h3><i class="fa-solid fa-people-arrows"></i> Patrones</h3>
+                <ul class="muted ml-5 list-disc">
+                    <li><strong>Outbox</strong> para publicar eventos de manera fiable.</li>
+                    <li><strong>CQRS</strong> y proyecciones denormalizadas.</li>
+                    <li><strong>Event Sourcing</strong> (si aplica) + proyecciones.</li>
+                </ul>
+            </article>
+        </div>
+        <div class="card mt-4">
+            <h3>Anti‑patrón</h3>
+            <p class="muted">BD compartida para todos los servicios ➜ contratos frágiles y acoplamiento. Prefiere integración por contrato (API/eventos).</p>
+        </div>
+    </section>
+
+    <!-- 3. Beneficios vs Monolito -->
+    <section id="beneficios" aria-labelledby="beneficios-title" class="mt-10 reveal">
+        <h2 id="beneficios-title">3) Beneficios y diferencias con Monolito</h2>
+        <div class="grid-2">
+            <article class="card">
+                <h3><i class="fa-solid fa-scale-balanced"></i> Beneficios</h3>
+                <ul class="muted ml-5 list-disc">
+                    <li>Entregas y escalado por dominio</li>
+                    <li>Resiliencia y contención de fallos</li>
+                    <li>Heterogeneidad tecnológica</li>
+                    <li>Aprovecha I/O no bloqueante (eficiencia)</li>
+                </ul>
+            </article>
+            <article class="card">
+                <h3><i class="fa-solid fa-triangle-exclamation"></i> Retos</h3>
+                <ul class="muted ml-5 list-disc">
+                    <li>Complejidad operativa (red, contratos)</li>
+                    <li>Consistencia eventual y sagas</li>
+                    <li>Observabilidad obligatoria</li>
+                    <li>Latencia y <em>timeouts</em> inter-servicio</li>
+                </ul>
+            </article>
+        </div>
+    </section>
+
+    <!-- 4. Empresas -->
+    <section id="empresas" aria-labelledby="empresas-title" class="mt-10 reveal">
+        <h2 id="empresas-title">4) Empresas que usan microservicios</h2>
+        <div class="grid-3">
+            <article class="card"><h3><i class="fa-brands fa-netflix"></i> Netflix</h3><p class="muted">Pioneros en descomposición, resiliencia y <em>Chaos Engineering</em>.</p></article>
+            <article class="card"><h3><i class="fa-brands fa-aws"></i> Amazon</h3><p class="muted">Equipos “two‑pizza” y servicios por dominio.</p></article>
+            <article class="card"><h3><i class="fa-brands fa-uber"></i> Uber</h3><p class="muted">Servicios masivos y tiempo real.</p></article>
+            <article class="card"><h3><i class="fa-brands fa-spotify"></i> Spotify</h3><p class="muted">Equipos <em>squad</em>, eventos y contratos.</p></article>
+            <article class="card"><h3><i class="fa-brands fa-linkedin"></i> LinkedIn</h3><p class="muted">Kafka, <em>Rest.li</em> y datos a escala.</p></article>
+            <article class="card"><h3><i class="fa-brands fa-airbnb"></i> Airbnb</h3><p class="muted">Plataforma de servicios y gateway.</p></article>
+        </div>
+    </section>
+
+    <!-- 5. Comunicación -->
+    <section id="comunicacion" aria-labelledby="comunicacion-title" class="mt-10 reveal">
+        <h2 id="comunicacion-title">5) Formas de comunicación entre microservicios</h2>
+        <div class="grid-2">
+            <article class="card">
+                <h3><i class="fa-solid fa-arrows-left-right"></i> Sincrónica</h3>
+                <ul class="muted ml-5 list-disc">
+                    <li><strong>REST</strong> (JSON/HTTP)</li>
+                    <li><strong>gRPC</strong> (HTTP/2, Protobuf)</li>
+                    <li>Patrones: <span class="tag">retries</span>, <span class="tag">timeouts</span>, <span class="tag">circuit breakers</span></li>
+                </ul>
+            </article>
+            <article class="card">
+                <h3><i class="fa-solid fa-wave-square"></i> Asíncrona</h3>
+                <ul class="muted ml-5 list-disc">
+                    <li><strong>Kafka/RabbitMQ</strong> (pub/sub)</li>
+                    <li><strong>Eventos de dominio</strong></li>
+                    <li><strong>Sagas</strong> (orquestación/coreografía)</li>
+                </ul>
+            </article>
+        </div>
+
+        <div class="flow mt-4">
+            <div class="step"><strong>Servicio A</strong><br><span class="muted">Publica <code>OrderCreated</code></span></div>
+            <div class="arrow">➜</div>
+            <div class="step"><strong>Broker</strong><br><span class="muted">Kafka topic <code>orders</code></span></div>
+            <div class="arrow">➜</div>
+            <div class="step"><strong>Servicio B</strong><br><span class="muted">Reserva stock</span></div>
+        </div>
+
+        <div class="grid-2 mt-4">
+            <article class="card">
+                <h3>Router/Handler (WebFlux funcional)</h3>
+                <div class="code"><button class="btn copy" data-copy="#router">Copiar</button><pre id="router"><code class="language-java">@Configuration
+class CustomerRouter {
+  @Bean RouterFunction&lt;ServerResponse&gt; routes(CustomerHandler h) {
+    return RouterFunctions.route()
+      .GET("/customers", h::findAll)
+      .GET("/customers/{id}", h::findById)
+      .POST("/customers", h::create)
+      .PUT("/customers/{id}", h::update)
+      .DELETE("/customers/{id}", h::delete)
+      .build();
+  }
+}
+
+@Component
+@RequiredArgsConstructor
+class CustomerHandler {
+  private final CustomerService svc;
+  public Mono&lt;ServerResponse&gt; findAll(ServerRequest r) {
+    return ServerResponse.ok().body(svc.findAll(), Customer.class);
+  }
+  public Mono&lt;ServerResponse&gt; findById(ServerRequest r){
+    return svc.findById(Long.valueOf(r.pathVariable("id")))
+      .flatMap(c -&gt; ServerResponse.ok().bodyValue(c))
+      .switchIfEmpty(ServerResponse.notFound().build());
+  }
+  public Mono&lt;ServerResponse&gt; create(ServerRequest r){
+    return r.bodyToMono(Customer.class).flatMap(svc::create)
+      .flatMap(c -&gt; ServerResponse.status(201).bodyValue(c));
+  }
+  public Mono&lt;ServerResponse&gt; update(ServerRequest r){
+    var id = Long.valueOf(r.pathVariable("id"));
+    return r.bodyToMono(Customer.class).flatMap(dto -&gt; svc.update(id, dto))
+      .flatMap(c -&gt; ServerResponse.ok().bodyValue(c));
+  }
+  public Mono&lt;ServerResponse&gt; delete(ServerRequest r){
+    return svc.delete(Long.valueOf(r.pathVariable("id")))
+      .then(ServerResponse.noContent().build());
+  }
+}
+</code></pre></div>
+            </article>
+            <article class="card">
+                <h3>Repositorio reactivo (R2DBC)</h3>
+                <div class="code"><button class="btn copy" data-copy="#repo">Copiar</button><pre id="repo"><code class="language-java">@Table("customers")
+public record Customer(@Id Long id, String name, String email) {}
+
+public interface CustomerRepository extends ReactiveCrudRepository&lt;Customer, Long&gt; {}
+
+@Service
+@RequiredArgsConstructor
+class CustomerService {
+  private final CustomerRepository repo;
+  public Flux&lt;Customer&gt; findAll(){ return repo.findAll(); }
+  public Mono&lt;Customer&gt; findById(Long id){ return repo.findById(id); }
+  public Mono&lt;Customer&gt; create(Customer c){ return repo.save(c); }
+  public Mono&lt;Customer&gt; update(Long id, Customer c){ return repo.save(new Customer(id, c.name(), c.email())); }
+  public Mono&lt;Void&gt; delete(Long id){ return repo.deleteById(id); }
+}
+</code></pre></div>
+            </article>
+        </div>
+    </section>
+
+    <!-- 6. IntelliJ IDEA: crear proyecto y servicios -->
+    <section id="intellij" aria-labelledby="intellij-title" class="mt-10 reveal">
+        <h2 id="intellij-title">6) Crear el proyecto y cada microservicio en IntelliJ IDEA Ultimate</h2>
+        <div class="grid-2">
+            <article class="card">
+                <h3><i class="fa-solid fa-list-check"></i> Requisitos</h3>
+                <ul class="muted ml-5 list-disc">
+                    <li>IntelliJ IDEA <strong>Ultimate 2025.x</strong></li>
+                    <li>Java <strong>21+</strong> (SDK del proyecto)</li>
+                    <li>Docker Desktop (opcional)</li>
+                </ul>
+            </article>
+            <article class="card">
+                <h3><i class="fa-solid fa-play"></i> Crear un servicio (Spring Initializr)</h3>
+                <ol class="muted ml-5 list-decimal">
+                    <li><strong>File ▸ New ▸ Project ▸ Spring Initializr</strong>.</li>
+                    <li>Group <code>com.example</code>, Artifact <code>customers</code>, Java <code>21</code>, Boot <code>3.3.x</code>.</li>
+                    <li>Dependencias: <strong>Spring Reactive Web</strong>, <strong>Spring Data R2DBC</strong>, <strong>R2DBC Driver</strong> (H2/Postgres), <strong>Validation</strong>, <strong>Lombok</strong>, <strong>DevTools</strong>.</li>
+                    <li>Repite para <code>products</code> y <code>orders</code>.</li>
+                </ol>
+            </article>
+        </div>
+
+        <div class="grid-2 mt-4">
+            <article class="card">
+                <h3>Config básica <code>application.yml</code> (customers)</h3>
+                <div class="code"><button class="btn copy" data-copy="#yaml">Copiar</button><pre id="yaml"><code class="language-yaml">server:
+  port: 8081
+spring:
+  r2dbc:
+    url: r2dbc:h2:mem:///customers;MODE=PostgreSQL;DB_CLOSE_DELAY=-1
+    username: sa
+    password: ''
+  sql.init.mode: always # para ejecutar schema-*.sql/data-*.sql
+</code></pre></div>
+                <p class="muted text-sm mt-2">Ajusta para <code>products</code> (8082) y <code>orders</code> (8083). Para MySQL, usa driver R2DBC compatible y cambia la URL.</p>
+            </article>
+            <article class="card">
+                <h3>Gateway reactivo (Spring Cloud Gateway)</h3>
+                <div class="code"><button class="btn copy" data-copy="#gateway">Copiar</button><pre id="gateway"><code class="language-yaml">server:
+  port: 8080
+spring:
+  cloud:
+    gateway:
+      routes:
+        - id: customers
+          uri: http://localhost:8081
+          predicates: [Path=/api/customers/**]
+        - id: products
+          uri: http://localhost:8082
+          predicates: [Path=/api/products/**]
+        - id: orders
+          uri: http://localhost:8083
+          predicates: [Path=/api/orders/**]
+</code></pre></div>
+            </article>
+        </div>
+    </section>
+
+    <!-- 7. Estructura de carpetas (según imagen) -->
+    <section id="estructura" aria-labelledby="estructura-title" class="mt-10 reveal">
+        <h2 id="estructura-title">7) Estructura de carpetas y proyecto (microreactivo‑2025)</h2>
+
+        <div class="accordion" role="region" aria-label="Estructura explicada">
+            <details class="ac-item" open>
+                <summary class="ac-btn"><span><strong>Árbol de carpetas</strong></span><span class="tag">referencia</span></summary>
+                <div class="ac-content">
+                    <div class="code"><pre><code class="language-bash">microreactivo-2025/
+ ├─ pom.xml                 # Padre (BOM Boot + BOM Spring Cloud)
+ ├─ gateway/
+ │   ├─ pom.xml
+ │   └─ src/
+ │      ├─ main/java/com/example/gateway/GatewayApplication.java
+ │      └─ main/resources/application.yml
+ ├─ customers/
+ │   ├─ pom.xml
+ │   └─ src/
+ │      ├─ main/java/com/example/customers/
+ │      │   ├─ CustomersApplication.java
+ │      │   ├─ domain/Customer.java
+ │      │   ├─ repo/CustomerRepository.java
+ │      │   ├─ web/CustomerHandler.java
+ │      │   └─ web/CustomerRouter.java
+ │      ├─ main/resources/
+ │      │   ├─ application.yml
+ │      │   ├─ schema-mysql.sql
+ │      │   ├─ schema-h2.sql
+ │      │   ├─ data-mysql.sql
+ │      │   └─ data-h2.sql
+ │      └─ test/java/com/example/customers/CustomerRoutesTest.java
+ │          └─ resources/application-test.yml
+ ├─ products/
+ │   ├─ pom.xml
+ │   └─ src/… (estructura equivalente: domain/repo/web/resources/test)
+ └─ orders/
+     ├─ pom.xml
+     └─ src/… (estructura equivalente)
+</code></pre></div>
+                </div>
+            </details>
+
+            <details class="ac-item">
+                <summary class="ac-btn"><span><strong>Explicación por módulo/archivo</strong></span><span class="tag">detalle</span></summary>
+                <div class="ac-content">
+                    <ul class="ml-5 list-disc">
+                        <li><code>pom.xml (padre)</code>: versiona dependencias con BOMs y define módulos.</li>
+                        <li><code>GatewayApplication.java</code>: app reactiva que enruta <code>/api/**</code> a servicios.</li>
+                        <li><code>CustomersApplication.java</code> / <code>ProductsApplication.java</code> / <code>OrdersApplication.java</code>: <em>bootstrap</em> de cada servicio.</li>
+                        <li><code>domain/*.java</code>: entidades anotadas con <code>@Table</code> (R2DBC) o <code>@Entity</code> si usas JPA en otro contexto.</li>
+                        <li><code>repo/*Repository.java</code>: <code>ReactiveCrudRepository</code> con <code>Mono</code>/<code>Flux</code>.</li>
+                        <li><code>web/*Handler.java</code>: lógica HTTP no bloqueante (WebFlux).</li>
+                        <li><code>web/*Router.java</code>: <em>RouterFunction</em> que mapea rutas a handlers.</li>
+                        <li><code>resources/application.yml</code>: puertos y R2DBC. Los archivos <code>schema-*.sql</code>/<code>data-*.sql</code> inicializan tablas y datos.</li>
+                        <li><code>test/*RoutesTest.java</code>: pruebas de las rutas con <code>WebTestClient</code>.</li>
+                    </ul>
+                </div>
+            </details>
+
+            <details class="ac-item">
+                <summary class="ac-btn"><span><strong>Ejemplo de test reactivo</strong> (WebTestClient)</span><span class="tag">test</span></summary>
+                <div class="ac-content">
+                    <div class="code"><button class="btn copy" data-copy="#wtest">Copiar</button><pre id="wtest"><code class="language-java">@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+class CustomerRoutesTest {
+  @Autowired WebTestClient client;
+  @Test void listar() {
+    client.get().uri("/customers").exchange().expectStatus().isOk();
+  }
+}
+</code></pre></div>
+                </div>
+            </details>
+        </div>
+    </section>
+
+    <!-- Postman -->
+    <section id="postman" aria-labelledby="postman-title" class="mt-10 reveal">
+        <h2 id="postman-title">Pruebas en Postman — Directo y vía API Gateway</h2>
+
+        <div class="grid-2">
+            <article class="card">
+                <h3><i class="fa-solid fa-power-off"></i> Arranca los servicios</h3>
+                <ul class="muted ml-5 list-disc">
+                    <li><strong>customers</strong> → <code>:8081</code></li>
+                    <li><strong>products</strong> → <code>:8082</code></li>
+                    <li><strong>orders</strong> → <code>:8083</code></li>
+                    <li><strong>gateway</strong> → <code>:8080</code></li>
+                </ul>
+                <p class="muted text-sm">Puedes iniciar sólo los 3 servicios para probar “Directo” y luego el gateway para la segunda parte.</p>
+            </article>
+            <article class="card">
+                <h3><i class="fa-solid fa-file-import"></i> Importa en Postman</h3>
+                <ol class="muted ml-5 list-decimal">
+                    <li><strong>Import</strong> → suelta la <strong>Colección</strong> y los <strong>dos Entornos</strong>.</li>
+                    <li>Entorno 1: <em>Microreactivo‑2025 • Local (Directo)</em> (puertos 8081/8082/8083).</li>
+                    <li>Entorno 2: <em>Microreactivo‑2025 • Local (API Gateway)</em> (puerto 8080 y prefijo <code>/api</code>).</li>
+                </ol>
+            </article>
+        </div>
+
+        <div class="grid-2 mt-4">
+            <article class="card">
+                <h3>Pruebas directas a cada microservicio</h3>
+                <ol class="muted ml-5 list-decimal">
+                    <li>Selecciona el entorno <strong>“Microreactivo‑2025 • Local (Directo)”</strong>.</li>
+                    <li>Abre la colección <strong>“Directo (puertos 8081/8082/8083)”</strong> → carpeta <strong>Customers</strong>.</li>
+                    <li>Ejecuta, en orden:
+                        <ul class="ml-5 list-disc">
+                            <li><em>Listar customers</em> (GET) → <strong>200</strong></li>
+                            <li><em>Crear customer</em> (POST) → <strong>201</strong>, guarda <code>customerId</code> automáticamente</li>
+                            <li><em>Obtener customer por id</em> (GET) → <strong>200</strong></li>
+                            <li><em>Actualizar customer</em> (PUT) → <strong>200</strong></li>
+                            <li><em>Eliminar customer</em> (DELETE) → <strong>204</strong></li>
+                        </ul>
+                    </li>
+                    <li>Repite lo mismo en <strong>Products</strong> y <strong>Orders</strong>.</li>
+                    <li>La colección crea primero un <strong>product</strong> y guarda <code>productId</code>; luego crea un <strong>order</strong> usando <code>{{customerId}}</code> y <code>{{productId}}</code>.</li>
+                </ol>
+            </article>
+            <article class="card">
+                <h3>Pruebas a través del API Gateway</h3>
+                <ol class="muted ml-5 list-decimal">
+                    <li>Cambia al entorno <strong>“Microreactivo‑2025 • Local (API Gateway)”</strong>.</li>
+                    <li>Abre la carpeta <strong>“API Gateway (puerto 8080 /api/…)”</strong>.</li>
+                    <li>Ejecuta la misma secuencia para <em>Customers</em>, <em>Products</em>, <em>Orders</em> (rutas <code>http://127.0.0.1:8080/api/...</code>).</li>
+                    <li>En <strong>Smoke: /api/</strong> tienes 3 GET rápidos para comprobar enrutamiento.</li>
+                </ol>
+            </article>
+        </div>
+
+        <div class="grid-2 mt-4">
+            <article class="card">
+                <h3>Runner (opcional)</h3>
+                <p class="muted">Abre <strong>Collection Runner</strong>, elige la carpeta (p. ej., Directo → Customers), selecciona el entorno correcto y da <strong>Run</strong> para ver todos los tests.</p>
+            </article>
+            <article class="card">
+                <h3>Variables dinámicas y Tests</h3>
+                <p class="muted">Los cuerpos usan <code>{{$randomFullName}}</code> y <code>{{$randomEmail}}</code> para datos aleatorios. Cada request valida estado y guarda IDs.</p>
+                <div class="code"><button class="btn copy" data-copy="#pm-tests">Copiar</button><pre id="pm-tests"><code class="language-javascript">// Tests comunes (ejemplo para Crear Customer)
+pm.test("201 Created", () =&gt; pm.response.to.have.status(201));
+const body = pm.response.json();
+if (body &amp;&amp; body.id) {
+  pm.environment.set("customerId", body.id);
+}
+
+// Para GET /customers/:id
+pm.test("200 OK", () =&gt; pm.response.to.have.status(200));
+
+// Para DELETE /customers/:id
+pm.test("204 No Content", () =&gt; pm.response.to.have.status(204));
+</code></pre></div>
+            </article>
+        </div>
+
+        <div class="grid-3 mt-4">
+            <article class="card">
+                <h3>Ejemplo body: POST Customer</h3>
+                <div class="code"><pre><code class="language-json">{
+  "id": null,
+  "name": "{{$randomFullName}}",
+  "email": "{{$randomEmail}}"
+}
+</code></pre></div>
+            </article>
+            <article class="card">
+                <h3>Ejemplo body: POST Product</h3>
+                <div class="code"><pre><code class="language-json">{
+  "id": null,
+  "name": "Teclado Mecanico",
+  "price": 199.99
+}
+</code></pre></div>
+            </article>
+            <article class="card">
+                <h3>Ejemplo body: POST Order</h3>
+                <div class="code"><pre><code class="language-json">{
+  "id": null,
+  "customerId": {{customerId}},
+  "productId": {{productId}},
+  "qty": 2
+}
+</code></pre></div>
+            </article>
+        </div>
+    </section>
+
+    <!-- Glosario -->
+    <section id="glosario" aria-labelledby="glosario-title" class="mt-10 reveal">
+        <h2 id="glosario-title">Glosario — Definiciones de todos los conceptos</h2>
+        <div class="grid-3">
+            <article class="card"><h3>WebFlux</h3><p class="muted">Stack reactivo de Spring basado en <em>Reactive Streams</em>; soporta <em>handlers</em> no bloqueantes y <em>backpressure</em>.</p></article>
+            <article class="card"><h3>R2DBC</h3><p class="muted">API reactiva para bases de datos relacionales. Sustituye a JDBC en apps no bloqueantes.</p></article>
+            <article class="card"><h3>Mono/Flux</h3><p class="muted"><strong>Mono</strong>: 0..1 elemento; <strong>Flux</strong>: 0..N elementos. Tipos reactivos de Project Reactor.</p></article>
+            <article class="card"><h3>Handler/Router</h3><p class="muted">Enfoque funcional de WebFlux: el <em>router</em> define rutas y el <em>handler</em> implementa lógica.</p></article>
+            <article class="card"><h3>API Gateway</h3><p class="muted">Borde que centraliza enrutamiento, seguridad y políticas a múltiples servicios.</p></article>
+            <article class="card"><h3>Backpressure</h3><p class="muted">Mecanismo para regular el flujo de datos evitando saturación del consumidor.</p></article>
+            <article class="card"><h3>CQRS</h3><p class="muted">Separación de comandos (escrituras) y consultas (lecturas) con modelos distintos.</p></article>
+            <article class="card"><h3>Event Sourcing</h3><p class="muted">Persistir eventos como fuente de verdad y derivar el estado mediante proyecciones.</p></article>
+            <article class="card"><h3>Outbox</h3><p class="muted">Patrón para publicar eventos de forma atómica junto a las escrituras de BD.</p></article>
+            <article class="card"><h3>Saga</h3><p class="muted">Transacción distribuida definida como una secuencia de pasos compensables.</p></article>
+            <article class="card"><h3>Circuit Breaker</h3><p class="muted">Corta llamadas a servicios inestables para evitar cascadas de fallo.</p></article>
+            <article class="card"><h3>Retry/Timeout</h3><p class="muted">Reintentos con límites y tiempos de espera para robustez en red.</p></article>
+            <article class="card"><h3>Observabilidad</h3><p class="muted">Capacidad de inferir el estado interno mediante logs, métricas y trazas.</p></article>
+            <article class="card"><h3>DDD</h3><p class="muted">Diseño guiado por dominio; delimita <em>bounded contexts</em> y lenguaje ubicuo.</p></article>
+            <article class="card"><h3>Read Model/Proyección</h3><p class="muted">Vista optimizada para lectura, derivada del modelo de escritura.</p></article>
+            <article class="card"><h3>Pub/Sub</h3><p class="muted">Patrón de mensajería donde productores publican y consumidores se suscriben a tópicos.</p></article>
+            <article class="card"><h3>gRPC</h3><p class="muted">RPC de alto rendimiento sobre HTTP/2; contratos .proto y serialización Protobuf.</p></article>
+            <article class="card"><h3>REST</h3><p class="muted">Estilo de arquitectura HTTP con recursos, métodos y representación (JSON).</p></article>
+            <article class="card"><h3>Idempotencia</h3><p class="muted">Mismo comando ejecutado varias veces produce el mismo efecto neto (p.ej., <code>PUT</code>).</p></article>
+        </div>
+    </section>
+</main>
+
+<footer class="bg-gray-800 text-white py-6 mt-10">
+    <div class="container mx-auto px-4 text-center">
+        <p>&copy; 2025 Microservicios Reactivos- WebFlux.</p>
+    </div>
+</footer>
+
+<!-- Interactividad: tema, copiar, revelar en scroll -->
+<script>
+    // Tema claro/oscuro
+    const themeBtn = document.getElementById('theme');
+    themeBtn.addEventListener('click', ()=>{
+        document.documentElement.classList.toggle('light');
+        localStorage.setItem('theme', document.documentElement.classList.contains('light') ? 'light' : 'dark');
+    });
+    (function(){ const t = localStorage.getItem('theme'); if(t==='light') document.documentElement.classList.add('light'); })();
+
+    // Botones de copiar
+    document.querySelectorAll('.copy').forEach(btn=>{
+        btn.addEventListener('click', ()=>{
+            const sel = document.querySelector(btn.dataset.copy);
+            if (!sel) return;
+            const text = sel.innerText;
+            navigator.clipboard.writeText(text).then(()=>{
+                const old = btn.textContent; btn.textContent = 'Copiado';
+                setTimeout(()=>btn.textContent=old, 1200);
+            });
+        })
+    });
+
+    // Animación on-scroll (reveal)
+    const io = new IntersectionObserver((entries)=>{
+        entries.forEach(e=>{ if(e.isIntersecting) e.target.classList.add('show'); });
+    }, { threshold: 0.08 });
+    document.querySelectorAll('.reveal').forEach(el=> io.observe(el));
+</script>
+</body>
+</html>
