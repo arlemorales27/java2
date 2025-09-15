@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Docker & Kubernetes para Java — Guía Profesional</title>
+    <meta name="description" content="Guía profesional, clara y responsiva sobre Docker y Kubernetes para desarrolladores Java. Conceptos, relación entre ambas tecnologías y ejemplos de Dockerfile y docker compose."/>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root{
+            --blue:#0B5ED7; /* header/footer */
+            --blue-700:#0A58CA; /* hover */
+            --accent:#4c82f7;
+            --bg:#ffffff;/* fondo blanco */
+            --text:#0f172a; /* slate-900 */
+            --muted:#475569; /* slate-600 */
+            --ring: rgba(11,94,215,.35);
+            --card:#f8fafc; /* slate-50 */
+            --border:#e2e8f0; /* slate-200 */
+        }
+        *{box-sizing:border-box}
+        html{scroll-behavior:smooth}
+        body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif;background:var(--bg);color:var(--text);line-height:1.6}
+        a{color:var(--blue);text-decoration:none}
+        a:hover{text-decoration:underline}
+        /* Header */
+        .skip-link{position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden}
+        .skip-link:focus{position:fixed;left:1rem;top:1rem;width:auto;height:auto;z-index:9999;background:#fff;color:#000;padding:.5rem .75rem;border-radius:.5rem;box-shadow:0 10px 30px rgba(0,0,0,.12)}
+        header{position:sticky;top:0;z-index:50;background:var(--blue);color:#fff;border-bottom:1px solid rgba(255,255,255,.15)}
+        .container{max-width:1200px;margin:0 auto;padding:0 1rem}
+        .nav{display:flex;align-items:center;gap:1rem;justify-content:space-between;padding:.75rem 0}
+        .brand{display:flex;align-items:center;gap:.75rem;font-weight:700}
+        .brand svg{flex:0 0 auto}
+        .brand span{font-size:1.05rem;letter-spacing:.2px}
+        .menu{display:flex;gap:.75rem;flex-wrap:wrap}
+        .menu a{color:#e6f0ff;font-weight:600;padding:.5rem .7rem;border-radius:.6rem}
+        .menu a:hover{background:rgba(255,255,255,.12);text-decoration:none}
+        .cta{display:inline-flex;align-items:center;gap:.5rem;background:#fff;color:var(--blue);font-weight:700;padding:.55rem .9rem;border-radius:.8rem;box-shadow:0 6px 18px rgba(255,255,255,.18), inset 0 0 0 1px rgba(0,0,0,.05)}
+        .cta:hover{background:#f5f8ff}
+        /* Hero */
+        .hero{padding:3.5rem 0 2.5rem;background:linear-gradient(180deg, rgba(11,94,215,.08), rgba(11,94,215,0))}
+        .hero h1{font-size:clamp(1.6rem,3.5vw,2.4rem);margin:.25rem 0 .5rem}
+        .hero p{color:#1f2a44;max-width:65ch}
+        .chips{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:1rem}
+        .chip{display:inline-flex;align-items:center;gap:.5rem;padding:.4rem .6rem;border:1px solid var(--border);background:#fff;border-radius:999px;font-size:.85rem;color:var(--muted)}
+        /* Layout */
+        main{display:grid;grid-template-columns:280px 1fr;gap:2rem;align-items:start}
+        @media (max-width: 1024px){main{grid-template-columns:1fr}}
+        aside{position:sticky;top:4.5rem;align-self:start;border:1px solid var(--border);background:#fff;border-radius:1rem;padding:1rem;box-shadow:0 10px 24px rgba(2,14,41,.06)}
+        aside h3{margin:.25rem 0 .75rem;font-size:1rem}
+        .toc{display:grid;gap:.35rem}
+        .toc a{padding:.35rem .5rem;border-radius:.5rem;color:#0b2a5e}
+        .toc a:hover{background:#f1f5ff}
+        section{background:#fff;border:1px solid var(--border);border-radius:1rem;padding:1.2rem 1.2rem;margin-bottom:1.25rem;box-shadow:0 10px 24px rgba(2,14,41,.06)}
+        section h2{margin:.2rem 0 0.6rem;font-size:1.35rem}
+        .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1rem}
+        @media (max-width: 880px){.grid{grid-template-columns:1fr}}
+        .card{background:var(--card);border:1px solid var(--border);padding:1rem;border-radius:1rem}
+        .muted{color:var(--muted)}
+        .icon{width:22px;height:22px;flex:0 0 auto}
+        .row{display:flex;align-items:flex-start;gap:.75rem}
+        .list{display:grid;gap:.5rem}
+        code, pre{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace}
+        pre{overflow:auto;background:#0a0f1a;color:#e6edf3;border-radius:.8rem;padding:1rem;border:1px solid #0b1225}
+        .kbd{font-family:inherit;font-weight:700;background:#eef2ff;border:1px solid var(--border);border-radius:.5rem;padding:.08rem .35rem}
+        .note{border-left:4px solid var(--accent);padding:.75rem 1rem;background:#f5faff;border:1px solid var(--border);border-radius:.5rem}
+        .button{display:inline-flex;align-items:center;gap:.5rem;padding:.7rem 1rem;background:var(--blue);color:#fff;border-radius:.75rem;border:none;font-weight:700;cursor:pointer;box-shadow:0 8px 24px rgba(11,94,215,.25)}
+        .button:hover{background:var(--blue-700)}
+        .repo-actions{display:flex;gap:.6rem;flex-wrap:wrap}
+        footer{margin-top:2rem;background:var(--blue);color:#e6f0ff}
+        .footer-inner{max-width:1200px;margin:0 auto;padding:1.25rem 1rem;display:flex;flex-wrap:wrap;gap:1rem;align-items:center;justify-content:space-between}
+        .top-btn{position:fixed;right:1rem;bottom:1rem;z-index:40}
+        .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+        .tag{display:inline-flex;align-items:center;gap:.35rem;font-size:.8rem;background:#ecf2ff;border:1px solid var(--border);padding:.25rem .5rem;border-radius:.5rem}
+        .inline-icon{width:1em;height:1em;vertical-align:-.15em}
+        .illus{width:100%;border:1px solid var(--border);border-radius:.8rem}
+    </style>
+</head>
+<body>
+<a href="#contenido" class="skip-link">Saltar al contenido</a>
+<header>
+    <div class="container nav" role="navigation" aria-label="Principal">
+        <a class="brand" href="#inicio" aria-label="Volver al inicio">
+            <!-- Logo minimalista (contenedor) -->
+            <svg class="icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <rect x="2" y="5" width="20" height="14" rx="3" ry="3" fill="white" opacity=".15"/>
+                <rect x="4.5" y="7.5" width="7" height="9" rx="1.5" fill="white"/>
+                <rect x="13" y="7.5" width="6.5" height="3" rx="1.2" fill="white"/>
+                <rect x="13" y="12.5" width="6.5" height="4" rx="1.2" fill="white"/>
+            </svg>
+            <span>Docker & Kubernetes para Java</span>
+        </a>
+        <nav class="menu">
+            <a href="#docker">Docker</a>
+            <a href="#kubernetes">Kubernetes</a>
+            <a href="#relacion">Relación</a>
+            <a href="#archivos">Dockerfile & Compose</a>
+            <a href="#repo">Repositorio</a>
+        </nav>
+        <a class="cta" href="https://github.com/arlemorales27/MIcroservicios-docker.git">
+            <span>Ejemplo en Java</span>
+            <svg class="inline-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13 5l7 7-7 7M5 12h14"/></svg>
+        </a>
+    </div>
+</header>
+
+<div id="inicio" class="hero container">
+    <span class="tag" aria-hidden="true">Guía práctica • Responsiva • En Español</span>
+    <h1>Orquesta contenedores con <strong>Docker</strong> y <strong>Kubernetes</strong> — enfoque en Java</h1>
+    <p>En esta página encontrarás conceptos clave, terminología y ejemplos mínimos para ejecutar microservicios Java de forma moderna. Incluye accesibilidad, navegación clara y diseño profesional.</p>
+    <div class="chips" aria-label="Puntos destacados">
+        <span class="chip">⚙️ Java</span>
+        <span class="chip">🐳 Docker</span>
+        <span class="chip">☸️ Kubernetes</span>
+        <span class="chip">📦 Microservicios</span>
+    </div>
+</div>
+
+<main id="contenido" class="container" aria-labelledby="toc-title">
+    <aside>
+        <h3 id="toc-title">Índice</h3>
+        <nav class="toc" aria-label="Tabla de contenidos">
+            <a href="#docker">8. ¿Qué es Docker?</a>
+            <a href="#docker-terminos">9. Términos de Docker</a>
+            <a href="#kubernetes">10. ¿Qué es Kubernetes?</a>
+            <a href="#relacion">11. Relación Docker ↔ Kubernetes</a>
+            <a href="#k8s-terminos">12. Términos de Kubernetes</a>
+            <a href="#archivos">Dockerfile & docker compose</a>
+            <a href="#repo">Repositorio de ejemplo</a>
+        </nav>
+    </aside>
+
+    <div>
+        <!-- 8. ¿Qué es Docker? -->
+        <section id="docker" aria-labelledby="docker-title">
+            <h2 id="docker-title">¿Qué es Docker?</h2>
+            <div class="grid">
+                <div class="card">
+                    <p><strong>Docker</strong> es una plataforma para construir, empaquetar y ejecutar aplicaciones en <em>contenedores</em>. Un contenedor es una unidad ligera y portátil que incluye la aplicación y sus dependencias (librerías, runtime), garantizando que se ejecute igual en cualquier entorno: tu laptop, CI/CD o producción.</p>
+                    <div class="note" role="note"><strong>Beneficios:</strong> portabilidad, aislamiento, tiempos de despliegue menores, consistencia entre entornos y escalabilidad.</div>
+                </div>
+                <figure>
+                    <img class="illus" src="https://images.unsplash.com/photo-1518779578993-ec3579fee39f?q=80&w=1600&auto=format&fit=crop" alt="Ilustración conceptual de infraestructura en contenedores" />
+                    <figcaption class="muted">Los contenedores empacan binarios y dependencias, separando la app del sistema host.</figcaption>
+                </figure>
+            </div>
+        </section>
+
+        <!-- 9. Términos de Docker -->
+        <section id="docker-terminos" aria-labelledby="docker-terms-title">
+            <h2 id="docker-terms-title">Docker</h2>
+            <div class="list">
+                <div class="row card">
+                    <svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M3 12h18M7 8h10m-9 8h8" stroke="#0B5ED7" stroke-width="2" stroke-linecap="round"/></svg>
+                    <div>
+                        <strong>Imagen</strong> — Plantilla inmutable creada a partir de un <span class="kbd">Dockerfile</span>. Versionable, distribuible (ej. en Docker Hub) y base para crear contenedores.
+                    </div>
+                </div>
+                <div class="row card">
+                    <svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3" y="6" width="18" height="12" rx="2" stroke="#0B5ED7" stroke-width="2"/><path d="M7 10h5M7 14h7" stroke="#0B5ED7" stroke-width="2" stroke-linecap="round"/></svg>
+                    <div>
+                        <strong>Contenedor</strong> — Instancia en ejecución de una imagen. Tiene sistema de archivos aislado, red propia y parámetros (puertos, variables, volúmenes).
+                    </div>
+                </div>
+                <div class="row card">
+                    <svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 6h16v12H4z" stroke="#0B5ED7" stroke-width="2"/><path d="M7 9h10M7 13h10" stroke="#0B5ED7" stroke-width="2" stroke-linecap="round"/></svg>
+                    <div>
+                        <strong>Dockerfile</strong> — Archivo de instrucciones para construir una imagen (FROM, COPY, RUN, EXPOSE, CMD). Define el entorno y cómo arrancará la app.
+                    </div>
+                </div>
+                <div class="row card">
+                    <svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3v18M3 12h18" stroke="#0B5ED7" stroke-width="2"/></svg>
+                    <div>
+                        <strong>Docker Desktop</strong> — Entorno gráfico para Mac/Windows que instala el motor de Docker, Kubernetes opcional y herramientas CLI.
+                    </div>
+                </div>
+                <div class="row card">
+                    <svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="9" stroke="#0B5ED7" stroke-width="2"/><path d="M12 7v10M7 12h10" stroke="#0B5ED7" stroke-width="2"/></svg>
+                    <div>
+                        <strong>Docker Hub / Registry</strong> — Repositorios donde se almacenan y comparten imágenes. Público (Docker Hub) o privado (Registry propio).
+                    </div>
+                </div>
+                <div class="row card">
+                    <svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h8" stroke="#0B5ED7" stroke-width="2" stroke-linecap="round"/></svg>
+                    <div>
+                        <strong>Docker CLI</strong> — Interfaz de línea de comandos (<span class="kbd">docker build</span>, <span class="kbd">docker run</span>, <span class="kbd">docker push</span>, etc.).
+                    </div>
+                </div>
+                <div class="row card">
+                    <svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 7h14v10H5z" stroke="#0B5ED7" stroke-width="2"/><path d="M9 7v10" stroke="#0B5ED7" stroke-width="2"/></svg>
+                    <div>
+                        <strong>Volumen</strong> — Carpeta persistente montada en el contenedor para guardar datos (p.ej. bases de datos) fuera del ciclo de vida del contenedor.
+                    </div>
+                </div>
+                <div class="row card">
+                    <svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="9" stroke="#0B5ED7" stroke-width="2"/><path d="M8 12h8M12 8v8" stroke="#0B5ED7" stroke-width="2"/></svg>
+                    <div>
+                        <strong>Network</strong> — Red virtual para que contenedores se comuniquen entre sí y con el exterior, aislando por proyecto/stack.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 10. ¿Qué es Kubernetes? -->
+        <section id="kubernetes" aria-labelledby="k8s-title">
+            <h2 id="k8s-title">¿Qué es un Kubernetes?</h2>
+            <p><strong>Kubernetes</strong> (K8s) es un sistema de <em>orquestación</em> de contenedores. Automatiza despliegue, escalado y operación de aplicaciones en clústeres de máquinas. Proporciona abstracciones (pods, deployments, services) y controladores que mantienen el estado deseado de tu sistema.</p>
+            <figure>
+                <img class="illus" src="https://images.unsplash.com/photo-1487058792275-0ad4aaf24ca7?q=80&w=1600&auto=format&fit=crop" alt="Tablero de orquestación mostrando recursos de un clúster" />
+                <figcaption class="muted">Kubernetes coordina múltiples nodos para ejecutar contenedores de forma resiliente.</figcaption>
+            </figure>
+        </section>
+
+        <!-- 11. Relación Docker/K8s -->
+        <section id="relacion" aria-labelledby="rel-title">
+            <h2 id="rel-title">¿Cuál es la relación entre Docker y Kubernetes?</h2>
+            <p>
+                Docker resuelve el <em>empaquetado</em> y ejecución de aplicaciones mediante contenedores; Kubernetes resuelve la <em>orquestación</em> (escalado, tolerancia a fallos, actualizaciones). Usualmente:
+            </p>
+            <ul>
+                <li>Construyes una <strong>imagen Docker</strong> de tu servicio Java.</li>
+                <li>Publicas esa imagen en un <strong>Registry</strong>.</li>
+                <li>Kubernetes referencia esa imagen en un <strong>Deployment</strong> y crea <strong>Pods</strong> para ejecutarla.</li>
+                <li>Expones el servicio con un <strong>Service</strong> y, opcionalmente, un <strong>Ingress</strong> para tráfico HTTP.</li>
+            </ul>
+        </section>
+
+        <!-- 12. Términos de Kubernetes -->
+        <section id="k8s-terminos" aria-labelledby="k8s-terms-title">
+            <h2 id="k8s-terms-title">Kubernetes</h2>
+            <div class="grid">
+                <div class="card">
+                    <h3>Clúster</h3>
+                    <p>Conjunto de máquinas (físicas/virtuales) que ejecutan Kubernetes. Tiene un <strong>plano de control</strong> que gestiona el estado.</p>
+                </div>
+                <div class="card">
+                    <h3>Nodo / Worker</h3>
+                    <p>Máquina donde corren tus pods. Incluye kubelet, runtime de contenedores y kube-proxy.</p>
+                </div>
+                <div class="card">
+                    <h3>Pod</h3>
+                    <p>Unidad mínima de ejecución: uno o varios contenedores con red y almacenamiento compartidos.</p>
+                </div>
+                <div class="card">
+                    <h3>Deployment</h3>
+                    <p>Controlador que gestiona réplicas y <em>rollouts</em> de pods; permite actualizaciones sin downtime.</p>
+                </div>
+                <div class="card">
+                    <h3>Service</h3>
+                    <p>Abstracción de red estable (ClusterIP/NodePort/LoadBalancer) que apunta a un conjunto de pods.</p>
+                </div>
+                <div class="card">
+                    <h3>Ingress</h3>
+                    <p>Reglas de entrada HTTP/HTTPS con hostnames y rutas; requiere un controlador de Ingress.</p>
+                </div>
+                <div class="card">
+                    <h3>ConfigMap</h3>
+                    <p>Configuración no sensible (pares clave-valor o archivos) inyectada en contenedores.</p>
+                </div>
+                <div class="card">
+                    <h3>Secret</h3>
+                    <p>Datos sensibles (tokens, contraseñas) codificados en Base64; se montan como variables o archivos.</p>
+                </div>
+                <div class="card">
+                    <h3>Namespace</h3>
+                    <p>Particiona el clúster en espacios lógicos para aislar recursos y permisos.</p>
+                </div>
+                <div class="card">
+                    <h3>kubectl</h3>
+                    <p>CLI para interactuar con el clúster: <span class="kbd">kubectl apply</span>, <span class="kbd">kubectl get</span>, <span class="kbd">kubectl logs</span>.</p>
+                </div>
+                <div class="card">
+                    <h3>Helm</h3>
+                    <p>Gestor de paquetes para Kubernetes. Plantillas (charts) reutilizables con valores configurables.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Dockerfile & Compose -->
+        <section id="archivos" aria-labelledby="files-title">
+            <h2 id="files-title">Dockerfile y docker compose — contenidos básicos</h2>
+            <div class="grid">
+                <div>
+                    <h3>Ejemplo mínimo de <code>Dockerfile</code> para Java</h3>
+                    <p class="muted">Buenas prácticas: usar imágenes base oficiales, multietapa para construir y ejecutar, minimizar capas, puertos claros.</p>
+                    <pre><code># Etapa de compilación
+FROM maven:3.9-eclipse-temurin-17 AS build
+WORKDIR /app
+COPY pom.xml .
+RUN mvn -B -q -e -DskipTests dependency:resolve
+COPY src ./src
+RUN mvn -B -q -DskipTests package
+
+# Etapa de ejecución (más ligera)
+FROM eclipse-temurin:17-jre
+WORKDIR /app
+COPY --from=build /app/target/app.jar app.jar
+EXPOSE 8080
+ENV JAVA_OPTS="-XX:+UseContainerSupport"
+CMD ["sh","-c","java $JAVA_OPTS -jar app.jar"]
+</code></pre>
+                    <ul>
+                        <li><strong>FROM</strong>: imagen base (compilación/ejecución).</li>
+                        <li><strong>COPY</strong>/<strong>RUN</strong>: define dependencias y construcción.</li>
+                        <li><strong>EXPOSE</strong>: documenta puertos usados.</li>
+                        <li><strong>CMD</strong> o <strong>ENTRYPOINT</strong>: comando por defecto.</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3>Ejemplo mínimo de <code>docker-compose.yml</code></h3>
+                    <p class="muted">Define servicios, redes y volúmenes para desarrollo local orquestado.</p>
+                    <pre><code>version: "3.9"
+services:
+  api:
+    build: .
+    image: mi-org/mi-api:dev
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
+    depends_on:
+      - db
+  db:
+    image: postgres:16
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_PASSWORD=postgres
+    volumes:
+      - datos_db:/var/lib/postgresql/data
+volumes:
+  datos_db: {}
+</code></pre>
+                    <ul>
+                        <li><strong>services</strong>: cada contenedor (api, db).</li>
+                        <li><strong>ports</strong>: mapeo host:contenedor.</li>
+                        <li><strong>environment</strong>: variables de entorno.</li>
+                        <li><strong>volumes</strong>: datos persistentes.</li>
+                        <li><strong>depends_on</strong>: orden básico de arranque.</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="note" role="note">
+                <strong>Comandos útiles:</strong> <span class="kbd">docker build -t mi-api .</span> • <span class="kbd">docker run -p 8080:8080 mi-api</span> • <span class="kbd">docker compose up -d</span>
+            </div>
+        </section>
+
+        <!-- Repositorio -->
+        <section id="repo" aria-labelledby="repo-title">
+            <h2 id="repo-title">Repositorio de ejemplo en Java (microservicios)</h2>
+            <p>Puedes usar tu propio repositorio o clonar uno público de referencia. Dejo dos opciones:</p>
+            <div class="repo-actions">
+                <a class="button" href="#" aria-label="Abrir tu repositorio de ejemplo">Tu repositorio aquí</a>
+                <a class="button" href="https://github.com/spring-petclinic/spring-petclinic-microservices" target="_blank" rel="noopener">Ver ejemplo público</a>
+            </div>
+            <p class="muted">Sugerencia: en tu README indica cómo construir la imagen, variables, y comandos de <span class="kbd">docker compose</span>.</p>
+        </section>
+
+        <!-- Recursos -->
+        <section aria-labelledby="recursos-title">
+            <h2 id="recursos-title">Recursos recomendados</h2>
+            <ul>
+                <li><a href="https://docs.docker.com/get-started/" target="_blank" rel="noopener">Guía oficial de Docker</a></li>
+                <li><a href="https://kubernetes.io/docs/home/" target="_blank" rel="noopener">Documentación oficial de Kubernetes</a></li>
+                <li><a href="https://helm.sh/docs/" target="_blank" rel="noopener">Documentación de Helm</a></li>
+            </ul>
+        </section>
+    </div>
+</main>
+
+<div class="top-btn">
+    <a class="button" href="#inicio" aria-label="Volver arriba">↑ Arriba</a>
+</div>
+
+<footer>
+    <div class="footer-inner">
+        <div>© <span id="year"></span> Guía Docker & Kubernetes • Arle Morales Ortiz</div>
+        <nav aria-label="Secundario">
+            <a href="#docker" style="color:#fff">Docker</a> ·
+            <a href="#kubernetes" style="color:#fff">Kubernetes</a> ·
+            <a href="#archivos" style="color:#fff">Archivos</a>
+        </nav>
+    </div>
+</footer>
+
+<script>
+    // Accesibilidad: resaltar enfoque por teclado
+    document.body.addEventListener('keydown', (e)=>{
+        if(e.key === 'Tab') document.documentElement.classList.add('outline');
+    });
+    // Año dinámico
+    document.getElementById('year').textContent = new Date().getFullYear();
+    // Enlaces internos: quitar subrayado al hacer click
+    for(const a of document.querySelectorAll('a[href^="#"]')){
+        a.addEventListener('click', ()=> a.blur());
+    }
+</script>
+</body>
+</html>
