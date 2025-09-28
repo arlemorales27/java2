@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Tutorial Profesional • Deploy en Java</title>
+    <meta name="description" content="Tutorial completo y profesional sobre despliegue de aplicaciones Java: conceptos, checklist, herramientas, CI/CD, microservicios, Kubernetes y dinámica empresarial."/>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-solarizedlight.min.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet" />
+    <style>
+        :root{--bg:#0b1020;--bg-soft:#0f1530;--card:#121934;--text:#eaf1ff;--muted:#a9b7d9;--accent:#7aa2ff;--accent-2:#9bffde;--warn:#ffd479;--danger:#ff8f8f;--ok:#9dffa7;--extra:#2b59ff;--extra2:#0fb;--extra3:#8a5d00;--extra4:#b00020;--radius:16px;--shadow:0 10px 30px rgba(0,0,0,.35);}
+        .light{--bg:#f7f9ff;--bg-soft:#ffffff;--card:#ffffff;--text:#141a2f;--muted:#5c6785;--accent:#2b59ff;--accent-2:#0fb;--warn:#8a5d00;--danger:#b00020;--ok:#0a7d39;--extra:#7aa2ff;--extra2:#9bffde;--extra3:#ffd479;--extra4:#9dffa7;}
+        *{box-sizing:border-box}
+        body{margin:0;font:16px/1.6 system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,"Helvetica Neue",Arial;background:var(--bg);color:var(--text)}
+        .nav{position:sticky;top:0;z-index:50;backdrop-filter:blur(8px);background:linear-gradient(135deg,var(--accent),var(--accent-2));border-bottom:1px solid color-mix(in oklab,var(--text) 12%,transparent)}
+        .nav .wrap{max-width:1200px;margin:0 auto;padding:12px 20px;display:grid;grid-template-columns:1fr auto auto;gap:12px;align-items:center}
+        .brand{display:inline-flex;gap:10px;align-items:center;font-weight:800;letter-spacing:.3px}
+        .brand .logo{width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,var(--accent),var(--accent-2));box-shadow:var(--shadow)}
+        .nav a{color:var(--text);text-decoration:none;opacity:.95}
+        .nav ul{list-style:none;display:flex;gap:14px;margin:0;padding:0}
+        .nav .right{display:flex;gap:10px;align-items:center}
+        .btn{border:1px solid color-mix(in oklab,var(--text) 14%,transparent);background:linear-gradient(180deg,color-mix(in oklab,var(--card) 85%,transparent),var(--card));color:var(--text);padding:8px 14px;border-radius:999px;text-decoration:none;display:inline-flex;gap:8px;align-items:center;cursor:pointer}
+        .btn:hover{border-color:color-mix(in oklab,var(--accent) 50%,transparent);box-shadow:0 6px 20px color-mix(in oklab,var(--accent) 18%,transparent);transform:translateY(-1px)}
+        .icon{width:18px;height:18px;display:inline-block;vertical-align:-3px}
+        .wrap{max-width:1200px;margin:0 auto;padding:28px 20px}
+        section{scroll-margin-top:84px}
+        .card{background:linear-gradient(180deg,color-mix(in oklab,var(--card) 90%,transparent),var(--card));border:1px solid color-mix(in oklab,var(--text) 12%,transparent);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow)}
+        .muted{color:var(--muted)}
+        .grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}
+        .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+        @media (max-width:900px){.grid-3{grid-template-columns:1fr}.grid-2{grid-template-columns:1fr}}
+    </style>
+</head>
+<body>
+<header class="nav">
+    <div class="wrap">
+        <a class="brand" href="#top" aria-label="Inicio">
+            <span class="logo"></span>
+            <span>Deploy en Java • Tutorial Profesional</span>
+        </a>
+        <nav aria-label="Secciones">
+            <ul>
+                <li><a href="#que-es">¿Qué es despliegue?</a></li>
+                <li><a href="#checklist">Checklist</a></li>
+                <li><a href="#herramientas">Herramientas</a></li>
+                <li><a href="#tecnologias">Tecnologías</a></li>
+                <li><a href="#arquitectura">Back & Front</a></li>
+                <li><a href="#cicd">CI/CD</a></li>
+                <li><a href="#microservicios">Microservicios</a></li>
+                <li><a href="#k8s">Kubernetes</a></li>
+                <li><a href="#practico">Ejemplo práctico</a></li>
+            </ul>
+        </nav>
+        <div class="right">
+            <button id="theme" class="btn" title="Cambiar tema" aria-label="Cambiar tema">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3a9 9 0 1 0 9 9 7 7 0 0 1-9-9Z"/></svg>
+                Tema
+            </button>
+        </div>
+    </div>
+</header>
+<main class="wrap" id="top">
+    <!-- 1. ¿Qué es despliegue? -->
+    <section id="que-es" class="grid-2 mt-8">
+        <article class="card">
+            <h2>1. ¿Qué es despliegue?</h2>
+            <ul class="ml-5 list-disc">
+                <li>
+                    <i class="fa-solid fa-rocket" style="color:var(--accent)"></i>
+                    <span style="color:var(--accent)"><strong>Despliegue:</strong></span>
+                    <span style="color:var(--warn)">Es poner una app en internet para que la usen los usuarios.</span>
+                </li>
+                <li>
+                    <i class="fa-solid fa-globe" style="color:var(--accent-2)"></i>
+                    <span style="color:var(--accent-2)"><strong>Entorno:</strong></span>
+                    <span style="color:var(--ok)">Lugar donde la app funciona (pruebas, producción).</span>
+                </li>
+                <li>
+                    <i class="fa-solid fa-lock" style="color:var(--danger)"></i>
+                    <span style="color:var(--danger)"><strong>Seguridad:</strong></span>
+                    <span style="color:var(--muted)">La app debe estar protegida y lista para usarse.</span>
+                </li>
+            </ul>
+        </article>
+        <article class="card">
+            <h2>¿Por qué es importante?</h2>
+            <ul class="ml-5 list-disc">
+                <li>
+                    <i class="fa-solid fa-users" style="color:var(--ok)"></i>
+                    <span style="color:var(--ok)">Permite que los usuarios accedan a la app.</span>
+                </li>
+                <li>
+                    <i class="fa-solid fa-check" style="color:var(--warn)"></i>
+                    <span style="color:var(--warn)">Asegura que todo funcione correctamente.</span>
+                </li>
+            </ul>
+        </article>
+    </section>
+    <!-- 2. Checklist -->
+    <section id="checklist" class="grid-2 mt-8">
+        <article class="card">
+            <h2>2. Checklist para desplegar una app web</h2>
+            <ul class="ml-5 list-disc">
+                <li>
+                    <i class="fa-solid fa-file-archive" style="color:var(--accent)"></i>
+                    <span style="color:var(--accent)"><strong>Artefacto:</strong></span>
+                    <span style="color:var(--warn)">El archivo final de la app (JAR, WAR, Docker).</span>
+                </li>
+                <li>
+                    <i class="fa-solid fa-gear" style="color:var(--accent-2)"></i>
+                    <span style="color:var(--accent-2)"><strong>Configuración:</strong></span>
+                    <span style="color:var(--ok)">Variables y secretos para cada ambiente.</span>
+                </li>
+                <li>
+                    <i class="fa-solid fa-database" style="color:var(--danger)"></i>
+                    <span style="color:var(--danger)"><strong>Base de datos:</strong></span>
+                    <span style="color:var(--muted)">Migraciones y conexión lista.</span>
+                </li>
+                <li>
+                    <i class="fa-solid fa-network-wired" style="color:var(--warn)"></i>
+                    <span style="color:var(--warn)"><strong>Infraestructura:</strong></span>
+                    <span style="color:var(--accent)">Servidores, red y contenedores preparados.</span>
+                </li>
+                <li>
+                    <i class="fa-solid fa-eye" style="color:var(--ok)"></i>
+                    <span style="color:var(--ok)"><strong>Observabilidad:</strong></span>
+                    <span style="color:var(--accent-2)">Logs y métricas para monitorear la app.</span>
+                </li>
+                <li>
+                    <i class="fa-solid fa-shield-halved" style="color:var(--danger)"></i>
+                    <span style="color:var(--danger)"><strong>Seguridad:</strong></span>
+                    <span style="color:var(--warn)">TLS y secretos protegidos.</span>
+                </li>
+                <li>
+                    <i class="fa-solid fa-rotate-left" style="color:var(--accent)"></i>
+                    <span style="color:var(--accent)"><strong>Rollback:</strong></span>
+                    <span style="color:var(--muted)">Plan para volver atrás si hay errores.</span>
+                </li>
+                <li>
+                    <i class="fa-solid fa-vial" style="color:var(--accent-2)"></i>
+                    <span style="color:var(--accent-2)"><strong>Pruebas de humo:</strong></span>
+                    <span style="color:var(--ok)">Verificar que la app funciona tras el despliegue.</span>
+                </li>
+            </ul>
+        </article>
+        <article class="card">
+            <h2>¿Qué pasa si falta algo?</h2>
+            <ul class="ml-5 list-disc">
+                <li>
+                    <i class="fa-solid fa-bug" style="color:var(--danger)"></i>
+                    <span style="color:var(--danger)">La app puede fallar o ser insegura.</span>
+                </li>
+                <li>
+                    <i class="fa-solid fa-exclamation-triangle" style="color:var(--warn)"></i>
+                    <span style="color:var(--warn)">Los usuarios pueden perder acceso.</span>
+                </li>
+            </ul>
+        </article>
+    </section>
+    <!-- 3 y 4. Herramientas -->
+    <section id="herramientas" class="grid-2 mt-8">
+        <article class="card">
+            <h2>3. Herramientas gratuitas</h2>
+            <ul class="ml-5 list-disc">
+                <li>
+                    <i class="fa-brands fa-github" style="color:var(--accent)"></i>
+                    <span style="color:var(--accent)"><strong>GitHub Actions:</strong></span>
+                    <span style="color:var(--warn)">Automatiza pruebas y despliegues gratis.</span>
+                </li>
+                <li>
+                    <i class="fa-solid fa-robot" style="color:var(--accent-2)"></i>
+                    <span style="color:var(--accent-2)"><strong>Jenkins:</strong></span>
+                    <span style="color:var(--ok)">Servidor para automatizar tareas.</span>
+                </li>
+                <li>
+                    <i class="fa-brands fa-docker" style="color:var(--danger)"></i>
+                    <span style="color:var(--danger)"><strong>Docker:</strong></span>
+                    <span style="color:var(--muted)">Crea contenedores para la app.</span>
+                </li>
+                <li>
+                    <i class="fa-brands fa-kubernetes" style="color:var(--warn)"></i>
+                    <span style="color:var(--warn)"><strong>Kubernetes:</strong></span>
+                    <span style="color:var(--accent)">Orquesta los contenedores.</span>
+                </li>
+            </ul>
+        </article>
+        <article class="card">
+            <h2>4. Herramientas de pago</h2>
+            <ul class="ml-5 list-disc">
+                <li>
+                    <i class="fa-brands fa-gitlab" style="color:var(--accent)"></i>
+                    <span style="color:var(--accent)"><strong>GitLab SaaS:</strong></span>
+                    <span style="color:var(--warn)">Automatización avanzada y soporte.</span>
+                </li>
+                <li>
+                    <i class="fa-brands fa-aws" style="color:var(--accent-2)"></i>
+                    <span style="color:var(--accent-2)"><strong>AWS CodeDeploy:</strong></span>
+                    <span style="color:var(--ok)">Despliegue en la nube.</span>
+                </li>
+                <li>
+                    <i class="fa-brands fa-heroku" style="color:var(--danger)"></i>
+                    <span style="color:var(--danger)"><strong>Heroku:</strong></span>
+                    <span style="color:var(--muted)">Despliegue fácil y rápido.</span>
+                </li>
+                <li>
+                    <i class="fa-brands fa-azure" style="color:var(--warn)"></i>
+                    <span style="color:var(--warn)"><strong>Azure DevOps:</strong></span>
+                    <span style="color:var(--accent)">Integración con servicios de Microsoft.</span>
+                </li>
+            </ul>
+        </article>
+    </section>
+    <!-- 5. Tecnologías requeridas -->
+    <section id="tecnologias" class="card mt-8">
+        <h2>5. Tecnologías requeridas</h2>
+        <ul class="ml-5 list-disc">
+            <li>
+                <i class="fa-solid fa-cube" style="color:#7aa2ff"></i>
+                <span style="color:#7aa2ff"><strong>Maven/Gradle, JAR/WAR, Docker:</strong></span>
+                <span style="color:#ffd479">Herramientas para crear y empaquetar la app. Docker permite que funcione igual en cualquier servidor.</span>
+            </li>
+            <li>
+                <i class="fa-solid fa-shield-halved" style="color:#9bffde"></i>
+                <span style="color:#9bffde"><strong>Seguridad (TLS, secretos, escaneo de código):</strong></span>
+                <span style="color:#ff8f8f">Protege los datos y revisa el código para evitar errores y ataques.</span>
+            </li>
+            <li>
+                <i class="fa-solid fa-chart-line" style="color:#9dffa7"></i>
+                <span style="color:#9dffa7"><strong>Observabilidad (logs, métricas, trazas):</strong></span>
+                <span style="color:#a9b7d9">Permite ver si la app funciona bien y encontrar problemas rápido.</span>
+            </li>
+            <li>
+                <i class="fa-solid fa-server" style="color:#2b59ff"></i>
+                <span style="color:#2b59ff"><strong>Infraestructura (Linux, Nginx, balanceadores):</strong></span>
+                <span style="color:#8a5d00">Son los sistemas y programas que hacen posible que la app esté disponible para los usuarios.</span>
+            </li>
+            <li>
+                <i class="fa-solid fa-database" style="color:#0fb"></i>
+                <span style="color:#0fb"><strong>Datos (migraciones, backups, pools):</strong></span>
+                <span style="color:#b00020">Ayudan a mantener la información segura y actualizada.</span>
+            </li>
+            <li>
+                <i class="fa-solid fa-arrows-rotate" style="color:#ffd479"></i>
+                <span style="color:#ffd479"><strong>Estrategias (blue/green, canary, rolling):</strong></span>
+                <span style="color:#7aa2ff">Formas de actualizar la app sin afectar a todos los usuarios al mismo tiempo.</span>
+            </li>
+        </ul>
+    </section>
+    <!-- 6. Back & Front -->
+    <section id="arquitectura" class="grid-2 mt-8">
+        <article class="card">
+            <h2>6. ¿Se aconseja desplegar back y front en el mismo servidor?</h2>
+            <ul class="ml-5 list-disc">
+                <li>
+                    <i class="fa-solid fa-computer" style="color:var(--accent)"></i>
+                    <span style="color:var(--accent)"><strong>Juntos:</strong></span>
+                    <span style="color:var(--warn)">Útil en proyectos pequeños.</span>
+                </li>
+                <li>
+                    <i class="fa-solid fa-server" style="color:var(--accent-2)"></i>
+                    <span style="color:var(--accent-2)"><strong>Separados:</strong></span>
+                    <span style="color:var(--ok)">Mejor para seguridad y escalabilidad.</span>
+                </li>
+            </ul>
+        </article>
+        <article class="card">
+            <h2>Patrones recomendados</h2>
+            <ul class="ml-5 list-disc">
+                <li>
+                    <i class="fa-solid fa-cloud" style="color:var(--warn)"></i>
+                    <span style="color:var(--warn)">Front en CDN para velocidad.</span>
+                </li>
+                <li>
+                    <i class="fa-solid fa-layer-group" style="color:var(--accent)"></i>
+                    <span style="color:var(--accent)">Back en contenedores con escalado automático.</span>
+                </li>
+                <li>
+                    <i class="fa-solid fa-globe" style="color:var(--accent-2)"></i>
+                    <span style="color:var(--accent-2)">Dominios separados y CORS configurado.</span>
+                </li>
+            </ul>
+        </article>
+    </section>
+    <!-- 7. CI/CD -->
+    <section id="cicd" class="grid-2 mt-8">
+        <article class="card">
+            <h2>7. ¿Qué es Integración Continua y Despliegue Continuo?</h2>
+            <ul class="ml-5 list-disc">
+                <li>
+                    <i class="fa-solid fa-code-branch" style="color:var(--accent)"></i>
+                    <span style="color:var(--accent)"><strong>CI:</strong></span>
+                    <span style="color:var(--warn)">Cada cambio se prueba automáticamente.</span>
+                </li>
+                <li>
+                    <i class="fa-solid fa-cloud-upload" style="color:var(--accent-2)"></i>
+                    <span style="color:var(--accent-2)"><strong>CD:</strong></span>
+                    <span style="color:var(--ok)">Automatiza el paso a producción.</span>
+                </li>
+            </ul>
+        </article>
+        <article class="card">
+            <h2>Pipeline de ejemplo</h2>
+            <pre><code class="language-yaml">stages: [build, test, package, push, deploy]
+build:
+  script: ./gradlew clean build -x test
+package:
+  script: docker build -t registry/app:$CI_COMMIT_SHA .
+push:
+  script: docker push registry/app:$CI_COMMIT_SHA
+deploy:
+  script: kubectl -n prod set image deploy/app api=registry/app:$CI_COMMIT_SHA
+</code></pre>
+        </article>
+    </section>
+    <!-- 8. Microservicios -->
+    <section id="microservicios" class="grid-2 mt-8">
+        <article class="card">
+            <h2>8. Pasos para desplegar microservicios en Java</h2>
+            <ol class="ml-5 list-decimal">
+                <li>
+                    <i class="fa-solid fa-box" style="color:var(--accent)"></i>
+                    <span style="color:var(--accent)">Conteneriza cada servicio.</span>
+                </li>
+                <li>
+                    <i class="fa-solid fa-upload" style="color:var(--warn)"></i>
+                    <span style="color:var(--warn)">Sube la imagen al registry.</span>
+                </li>
+                <li>
+                    <i class="fa-solid fa-file-code" style="color:var(--accent-2)"></i>
+                    <span style="color:var(--accent-2)">Crea manifiestos K8s/Helm.</span>
+                </li>
+                <li>
+                    <i class="fa-solid fa-key" style="color:var(--ok)"></i>
+                    <span style="color:var(--ok)">Configura secretos y variables.</span>
+                </li>
+                <li>
+                    <i class="fa-solid fa-route" style="color:var(--danger)"></i>
+                    <span style="color:var(--danger)">Define rutas y TLS (Ingress).</span>
+                </li>
+                <li>
+                    <i class="fa-solid fa-chart-pie" style="color:var(--muted)"></i>
+                    <span style="color:var(--muted)">Monitorea con dashboards y alertas.</span>
+                </li>
+            </ol>
+        </article>
+        <article class="card">
+            <h2>¿Por qué usar microservicios?</h2>
+            <ul class="ml-5 list-disc">
+                <li>
+                    <i class="fa-solid fa-puzzle-piece" style="color:var(--accent)"></i>
+                    <span style="color:var(--accent)">Permite dividir la app en partes independientes.</span>
+                </li>
+                <li>
+                    <i class="fa-solid fa-arrows-to-dot" style="color:var(--warn)"></i>
+                    <span style="color:var(--warn)">Cada parte se actualiza y escala por separado.</span>
+                </li>
+            </ul>
+        </article>
+    </section>
+    <!-- 9. Kubernetes -->
+    <section id="k8s" class="grid-2 mt-8">
+        <article class="card">
+            <h2>9. Relación entre Kubernetes y el despliegue</h2>
+            <ul class="ml-5 list-disc">
+                <li>
+                    <i class="fa-brands fa-kubernetes" style="color:var(--accent)"></i>
+                    <span style="color:var(--accent)"><strong>Orquestación:</strong></span>
+                    <span style="color:var(--warn)">Gestiona y distribuye los contenedores.</span>
+                </li>
+                <li>
+                    <i class="fa-solid fa-plug" style="color:var(--accent-2)"></i>
+                    <span style="color:var(--accent-2)"><strong>Desacopla:</strong></span>
+                    <span style="color:var(--ok)">Separa la app de la infraestructura.</span>
+                </li>
+                <li>
+                    <i class="fa-solid fa-arrows-rotate" style="color:var(--danger)"></i>
+                    <span style="color:var(--danger)"><strong>Estrategias:</strong></span>
+                    <span style="color:var(--muted)">Rolling, blue/green y canary integradas.</span>
+                </li>
+            </ul>
+        </article>
+        <article class="card">
+            <h2>Flujo típico</h2>
+            <pre><code class="language-bash"># Construir y publicar imagen
+mvn -DskipTests package && docker build -t registry/app:1.0.0 . && docker push registry/app:1.0.0
+# Aplicar manifiestos
+kubectl apply -f k8s/
+# Ver estado
+kubectl -n prod rollout status deploy/api
+kubectl -n prod get pods,svc,ingress
+# Rollback
+kubectl -n prod rollout undo deploy/api
+</code></pre>
+        </article>
+    </section>
+    <!-- 10. Ejemplo práctico -->
+    <section id="practico" class="grid-2 mt-8">
+        <article class="card">
+            <h2>10. Dinámica de despliegue en una empresa</h2>
+            <ol class="ml-5 list-decimal">
+                <li>
+                    <i class="fa-solid fa-code-branch" style="color:var(--accent)"></i>
+                    <span style="color:var(--accent)">PR a main dispara CI.</span>
+                </li>
+                <li>
+                    <i class="fa-solid fa-docker" style="color:var(--warn)"></i>
+                    <span style="color:var(--warn)">Merge construye imagen Docker.</span>
+                </li>
+                <li>
+                    <i class="fa-solid fa-vial" style="color:var(--accent-2)"></i>
+                    <span style="color:var(--accent-2)">CD a staging con pruebas.</span>
+                </li>
+                <li>
+                    <i class="fa-solid fa-arrow-up-right-dots" style="color:var(--ok)"></i>
+                    <span style="color:var(--ok)">Promoción manual a prod.</span>
+                </li>
+                <li>
+                    <i class="fa-solid fa-flask" style="color:var(--danger)"></i>
+                    <span style="color:var(--danger)">Despliegue canary y monitoreo.</span>
+                </li>
+            </ol>
+        </article>
+        <article class="card">
+            <h2>Ambientes y monitoreo</h2>
+            <ul class="ml-5 list-disc">
+                <li>
+                    <i class="fa-solid fa-laptop-code" style="color:var(--accent)"></i>
+                    <span style="color:var(--accent)">Ambientes: dev, staging, prod.</span>
+                </li>
+                <li>
+                    <i class="fa-solid fa-chart-line" style="color:var(--warn)"></i>
+                    <span style="color:var(--warn)">Monitoreo con Prometheus y Grafana.</span>
+                </li>
+                <li>
+                    <i class="fa-solid fa-wave-square" style="color:var(--accent-2)"></i>
+                    <span style="color:var(--accent-2)">Trazas con OTel.</span>
+                </li>
+            </ul>
+        </article>
+    </section>
+    <!-- Glosario -->
+    <section id="glosario" class="card mt-8">
+        <h2>Glosario rápido</h2>
+        <ul class="ml-5 list-disc">
+            <li>
+                <i class="fa-solid fa-toggle-on" style="color:#7aa2ff"></i>
+                <span style="color:#7aa2ff"><strong>Blue/Green:</strong></span>
+                <span style="color:#ffd479">Tener dos versiones de la app y cambiar entre ellas para actualizar sin afectar a los usuarios.</span>
+            </li>
+            <li>
+                <i class="fa-solid fa-flask" style="color:#9bffde"></i>
+                <span style="color:#9bffde"><strong>Canary:</strong></span>
+                <span style="color:#ff8f8f">Lanzar la nueva versión solo a algunos usuarios para probar que funciona bien.</span>
+            </li>
+            <li>
+                <i class="fa-solid fa-rotate-left" style="color:#9dffa7"></i>
+                <span style="color:#9dffa7"><strong>Rollback:</strong></span>
+                <span style="color:#a9b7d9">Volver a la versión anterior si algo sale mal en el despliegue.</span>
+            </li>
+            <li>
+                <i class="fa-solid fa-key" style="color:#2b59ff"></i>
+                <span style="color:#2b59ff"><strong>Secrets:</strong></span>
+                <span style="color:#8a5d00">Guardar contraseñas y datos privados de forma segura, nunca en el código.</span>
+            </li>
+            <li>
+                <i class="fa-solid fa-heart-pulse" style="color:#0fb"></i>
+                <span style="color:#0fb"><strong>Health Check:</strong></span>
+                <span style="color:#b00020">Una prueba para saber si la app está funcionando correctamente.</span>
+            </li>
+            <li>
+                <i class="fa-solid fa-wave-square" style="color:#ffd479"></i>
+                <span style="color:#ffd479"><strong>OTel (OpenTelemetry):</strong></span>
+                <span style="color:#7aa2ff">Herramienta para ver cómo funciona la app y encontrar errores fácilmente.</span>
+            </li>
+        </ul>
+    </section>
+</main>
+<footer class="bg-gray-800 text-white py-6 mt-10">
+    <div class="container mx-auto px-4 text-center">
+        <p>&copy; 2025 Deploy en Java • Tutorial profesional.</p>
+    </div>
+</footer>
+<script>
+    // Tema claro/oscuro
+    const themeBtn = document.getElementById('theme');
+    themeBtn.addEventListener('click', ()=>{
+        document.documentElement.classList.toggle('light');
+        localStorage.setItem('theme', document.documentElement.classList.contains('light') ? 'light' : 'dark');
+    });
+    (function(){ const t = localStorage.getItem('theme'); if(t==='light') document.documentElement.classList.add('light'); })();
+</script>
+</body>
+</html>
